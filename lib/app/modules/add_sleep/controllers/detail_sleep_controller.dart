@@ -11,9 +11,11 @@ class DetailSleepController extends GetxController {
 
   RxInt durasiTidur = 0.obs;
   RxInt gangguan = 0.obs;
-  RxInt lamaTerbangun = 0.obs;
   RxInt kualitas = 0.obs;
-  RxInt keteraturan = 0.obs;
+  RxInt lamaTerbangun = 0.obs;
+  RxInt mengantukSiang = 0.obs;
+  RxInt latensiTidur = 0.obs;
+  RxInt jadwalTidur = 0.obs;
 
   @override
   void onInit() {
@@ -23,13 +25,15 @@ class DetailSleepController extends GetxController {
 
   void loadData() {
     kategori.value = home.sleepKategori.value;
-    skor.value = home.sleepSkor.value;
+    skor.value = home.sleepRawScore.value;
 
     durasiTidur.value = home.durasiTidur.value;
     gangguan.value = home.gangguan.value;
-    lamaTerbangun.value = home.lamaTerbangun.value;
     kualitas.value = home.kualitas.value;
-    keteraturan.value = home.keteraturan.value;
+    lamaTerbangun.value = home.lamaTerbangun.value;
+    mengantukSiang.value = home.mengantukSiang.value;
+    latensiTidur.value = home.latensiTidur.value;
+    jadwalTidur.value = home.jadwalTidur.value;
   }
 
   /// OPTIONAL: refresh manual

@@ -120,56 +120,78 @@ class AddSleepView extends GetView<AddSleepController> {
 
             _questionCard(
               icon: Icons.nightlight_round,
-              question: "Berapa lama kamu tidur per hari?",
+              question: "Berapa jam kamu tidur tadi malam?",
               selected: controller.q1,
               options: const [
-                {"label": "7–9 jam", "value": 3},
-                {"label": "5–6 / >9 jam", "value": 2},
-                {"label": "<5 jam", "value": 1},
+                {"label": "7–9 jam", "value": 1},
+                {"label": "5–6 jam / >9 jam", "value": 2},
+                {"label": "< 5 jam", "value": 3},
               ],
             ),
 
             _questionCard(
-              icon: Icons.alarm_off_rounded,
-              question: "Seberapa sering terbangun malam?",
+              icon: Icons.volume_off_rounded,
+              question: "Apakah tidurmu terganggu oleh suara, panas, mimpi buruk, atau hal lain tadi malam?",
               selected: controller.q2,
               options: const [
-                {"label": "Tidak pernah", "value": 3},
-                {"label": "1–2 kali", "value": 2},
-                {"label": ">2 kali", "value": 1},
-              ],
-            ),
-
-            _questionCard(
-              icon: Icons.timer_outlined,
-              question: "Berapa lama sulit tidur kembali?",
-              selected: controller.q3,
-              options: const [
-                {"label": "<15 menit", "value": 3},
-                {"label": "15–30 menit", "value": 2},
-                {"label": ">30 menit", "value": 1},
+                {"label": "Tidak pernah", "value": 1},
+                {"label": "Sedikit", "value": 2},
+                {"label": "Ya, sering", "value": 3},
               ],
             ),
 
             _questionCard(
               icon: Icons.bedtime_rounded,
-              question: "Kualitas tidur kamu?",
+              question: "Bagaimana kualitas tidurmu tadi malam?",
+              selected: controller.q3,
+              options: const [
+                {"label": "Nyenyak", "value": 1},
+                {"label": "Cukup nyenyak", "value": 2},
+                {"label": "Tidak nyenyak", "value": 3},
+              ],
+            ),
+
+            _questionCard(
+              icon: Icons.alarm_off_rounded,
+              question: "Berapa kali kamu terbangun tadi malam?",
               selected: controller.q4,
               options: const [
-                {"label": "Nyenyak", "value": 3},
-                {"label": "Cukup", "value": 2},
-                {"label": "Tidak nyenyak", "value": 1},
+                {"label": "Tidak pernah", "value": 1},
+                {"label": "1–2 kali", "value": 2},
+                {"label": "> 2 kali", "value": 3},
+              ],
+            ),
+
+            _questionCard(
+              icon: Icons.sentiment_dissatisfied_rounded,
+              question: "Apakah hari ini kamu merasa mengantuk saat belajar atau beraktivitas?",
+              selected: controller.q5,
+              options: const [
+                {"label": "Tidak", "value": 1},
+                {"label": "Sedikit", "value": 2},
+                {"label": "Ya", "value": 3},
+              ],
+            ),
+
+            _questionCard(
+              icon: Icons.timer_outlined,
+              question: "Butuh waktu berapa lama dari rebahan sampai kamu benar-benar tertidur?",
+              selected: controller.q6,
+              options: const [
+                {"label": "< 15 menit", "value": 1},
+                {"label": "15–30 menit", "value": 2},
+                {"label": "> 30 menit", "value": 3},
               ],
             ),
 
             _questionCard(
               icon: Icons.schedule_rounded,
-              question: "Apakah jadwal tidur teratur?",
-              selected: controller.q5,
+              question: "Jam berapa kamu mulai terlelap semalam?",
+              selected: controller.q7,
               options: const [
-                {"label": "Teratur", "value": 3},
-                {"label": "Kadang", "value": 2},
-                {"label": "Tidak", "value": 1},
+                {"label": "Sebelum 22.00", "value": 1},
+                {"label": "22.00 – 23.30", "value": 2},
+                {"label": "Lewat dari 23.30", "value": 3},
               ],
             ),
 
@@ -183,7 +205,9 @@ class AddSleepView extends GetView<AddSleepController> {
               child: ElevatedButton(
                 onPressed: () async {
                   controller.hitungSkor();
-                  await controller.saveSleepData();
+                  if (controller.kategori.value.isNotEmpty) {
+                    await controller.saveSleepData();
+                  }
                 },
 
                 style: ElevatedButton.styleFrom(
@@ -309,6 +333,17 @@ class AddSleepView extends GetView<AddSleepController> {
                             ),
                           ],
                         ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      controller.insight.value,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: darkText,
                       ),
                     ),
                   ],

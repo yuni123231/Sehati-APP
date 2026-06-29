@@ -87,7 +87,7 @@ class DetailStressView extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          "Laporan Stress",
+          "Manajemen Stress",
           style: TextStyle(
             color: darkText,
             fontWeight: FontWeight.w700,
@@ -229,7 +229,7 @@ class DetailStressView extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.circular(20),
                                 child: LinearProgressIndicator(
-                                  value: skor / 18,
+                                  value: skor / 40,
                                   minHeight: 8,
                                   backgroundColor:
                                       Colors.white24,
@@ -283,7 +283,7 @@ class DetailStressView extends StatelessWidget {
               /// =====================================================
 
               const Text(
-                "Kondisi Emosional",
+                "Ringkasan Manajemen Stress",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -582,7 +582,7 @@ class DetailStressView extends StatelessWidget {
                       const SizedBox(height: 12),
 
                       const Text(
-                        "Luangkan 1 menit untuk mengatur napas agar tubuh lebih rileks dan pikiran menjadi lebih tenang 🌿",
+                        "Gunakan teknik pernapasan 4-7-8 untuk membantu menurunkan ketegangan, memperlambat detak jantung, dan membuat pikiran lebih tenang 🌿",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -594,10 +594,13 @@ class DetailStressView extends StatelessWidget {
 
                       GestureDetector(
                         onTap: () {
+                          controller.mulaiMeditasi();
                           Get.dialog(
                             Dialog(
                               backgroundColor: Colors.transparent,
-                              child: _BreathingDialog(),
+                              child: _BreathingDialog(
+                                controller: controller,
+                              ),
                             ),
                           );
                         },
@@ -833,25 +836,28 @@ class DetailStressView extends StatelessWidget {
 /// =====================================================
 /// BREATHING DIALOG
 /// =====================================================
+/// =====================================================
+/// BREATHING DIALOG ANIMATED
+/// =====================================================
 
 class _BreathingDialog extends StatefulWidget {
+  final DetailStressController controller;
+
+  const _BreathingDialog({
+    required this.controller,
+  });
+
   @override
-  State<_BreathingDialog> createState() =>
-      _BreathingDialogState();
+  State<_BreathingDialog> createState() => _BreathingDialogState();
 }
 
-class _BreathingDialogState
-    extends State<_BreathingDialog>
+class _BreathingDialogState extends State<_BreathingDialog>
     with SingleTickerProviderStateMixin {
-
   late AnimationController animationController;
 
-  String phase = "Tarik";
-  String subtitle = "Tarik napas perlahan";
-
-  int seconds = 4;
-
-  bool isRunning = true;
+  static const Color primary = Color(0xFF4ADE80);
+  static const Color secondary = Color(0xFF60A5FA);
+  static const Color darkText = Color(0xFF1E293B);
 
   @override
   void initState() {
@@ -860,262 +866,214 @@ class _BreathingDialogState
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
-      lowerBound: 0.82,
-      upperBound: 1.05,
-    );
-
-    animationController.repeat(reverse: true);
-
-    startCycle();
-  }
-
-  Future<void> startCycle() async {
-    while (mounted && isRunning) {
-
-      for (int i = 4; i >= 1; i--) {
-        if (!mounted) return;
-
-        setState(() {
-          phase = "Tarik";
-          subtitle = "Tarik napas melalui hidung";
-          seconds = i;
-        });
-
-        await Future.delayed(
-          const Duration(seconds: 1),
-        );
-      }
-
-      for (int i = 7; i >= 1; i--) {
-        if (!mounted) return;
-
-        setState(() {
-          phase = "Tahan";
-          subtitle = "Tahan napas";
-          seconds = i;
-        });
-
-        await Future.delayed(
-          const Duration(seconds: 1),
-        );
-      }
-
-      for (int i = 8; i >= 1; i--) {
-        if (!mounted) return;
-
-        setState(() {
-          phase = "Hembuskan";
-          subtitle = "Hembuskan perlahan melalui mulut";
-          seconds = i;
-        });
-
-        await Future.delayed(
-          const Duration(seconds: 1),
-        );
-      }
-    }
+      lowerBound: 0.85,
+      upperBound: 1.15,
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    isRunning = false;
     animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 20,
+        horizontal: 20,
+        vertical: 24,
       ),
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(
-            maxWidth: 380,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 28,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(34),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              /// ================= TITLE =================
-              const Text(
-                "Meditasi\nNapas 🌿",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
-                  height: 1.2,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.80,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
-              ),
+              ],
+            ),
+            child: Obx(() {
+              final fase = controller.faseNapasan.value;
+              final detik = controller.detik.value;
+              final siklus = controller.siklusSekarang.value;
+              final selesai = controller.meditasiSelesai.value;
 
-              const SizedBox(height: 12),
-
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-
-              const SizedBox(height: 26),
-
-              /// ================= ANIMATION =================
-              AnimatedBuilder(
-                animation: animationController,
-                builder: (_, child) {
-                  return Transform.scale(
-                    scale: animationController.value,
-                    child: Container(
-                      width: 165,
-                      height: 165,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF4ADE80),
-                            Color(0xFF60A5FA),
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF60A5FA,
-                            ).withValues(alpha: 0.22),
-                            blurRadius: 28,
-                            spreadRadius: 4,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
-                        children: [
-
-                          Text(
-                            phase,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          Text(
-                            "$seconds",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 34,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// ICON
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
                     ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 26),
-
-              /// ================= INFO =================
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F7FB),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: const Color(
-                          0xFF4ADE80,
-                        ).withValues(alpha: 0.15),
-                        borderRadius:
-                            BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.favorite_rounded,
-                        color: Color(0xFF4ADE80),
-                        size: 18,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: Text(
-                        "Latihan pernapasan membantu tubuh lebih rileks dan pikiran menjadi lebih tenang.",
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.6,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              /// ================= BUTTON =================
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    isRunning = false;
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF4ADE80),
-                    elevation: 0,
-                    padding:
-                        const EdgeInsets.symmetric(
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(20),
+                    child: const Icon(
+                      Icons.air_rounded,
+                      color: primary,
+                      size: 26,
                     ),
                   ),
-                  child: const Text(
-                    "Selesai",
+
+                  const SizedBox(height: 12),
+
+                  /// TITLE
+                  const Text(
+                    "Meditasi\nPernapasan 🌿",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: darkText,
                     ),
                   ),
-                ),
-              ),
-            ],
+
+                  const SizedBox(height: 8),
+
+                  /// SUBTITLE
+                  Text(
+                    "Ikuti irama napas di bawah ini",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// CIRCLE ANIMATION
+                  AnimatedBuilder(
+                    animation: animationController,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: animationController.value,
+                        child: Container(
+                          width: 145,
+                          height: 145,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [primary, secondary],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primary.withValues(alpha: 0.35),
+                                blurRadius: 28,
+                                spreadRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                fase.isEmpty ? "Tarik Napas" : fase,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Text(
+                                "$detik",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  /// SIKLUS
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Text(
+                      "Siklus $siklus / 4",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  /// INSTRUKSI
+                  Text(
+                    selesai
+                        ? "Sesi relaksasi selesai ❤️"
+                        : "Tarik 4 detik • Tahan 7 detik • Buang 8 detik",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  /// BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primary,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "Selesai",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
           ),
         ),
       ),

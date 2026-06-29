@@ -49,7 +49,15 @@ class HealthDataController extends GetxController {
       // ================= ADDRESS =================
       addressController.text = data['alamat'] ?? '';
 
-      gender.value = data['jenis_kelamin'] ?? '';
+      String genderApi = data['jenis_kelamin'] ?? '';
+
+      if (genderApi == 'Male') {
+        gender.value = 'Male';
+      } else if (genderApi == 'Female') {
+        gender.value = 'Female';
+      } else {
+        gender.value = '';
+      }
       activity.value = data['aktivitas'] ?? '';
       goal.value = data['tujuan'] ?? '';
     }
@@ -66,7 +74,11 @@ class HealthDataController extends GetxController {
       umur: int.tryParse(ageController.text) ?? 0,
       tinggiBadan: double.tryParse(heightController.text) ?? 0,
       beratBadan: double.tryParse(weightController.text) ?? 0,
-      jenisKelamin: gender.value,
+      jenisKelamin: gender.value == 'Laki-laki'
+          ? 'Male'
+          : gender.value == 'Perempuan'
+              ? 'Female'
+              : '',
       aktivitas: activity.value,
       tujuan: goal.value,
       alamat: addressController.text,

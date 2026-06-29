@@ -22,12 +22,20 @@ import '../modules/healthy_living_tips/bindings/healthy_living_tips_binding.dart
 import '../modules/healthy_living_tips/views/healthy_living_tips_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/lupaPassword/bindings/lupa_password_binding.dart';
+import '../modules/lupaPassword/controllers/password_baru_controller.dart';
+import '../modules/lupaPassword/views/lupa_password_view.dart';
+import '../modules/lupaPassword/views/password_baru_view.dart';
 import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
 import '../modules/menu/bindings/menu_binding.dart';
 import '../modules/menu/views/menu_view.dart';
+import '../modules/notifikasi/bindings/notifikasi_binding.dart';
+import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/onboarding/bindings/onboarding_binding.dart';
 import '../modules/onboarding/views/onboarding_view.dart';
+import '../modules/otp/bindings/otp_binding.dart';
+import '../modules/otp/views/otp_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/health_data_view.dart';
 import '../modules/profile/views/my_account_view.dart';
@@ -37,6 +45,7 @@ import '../modules/progres/views/progres_view.dart';
 import '../modules/recommendation/bindings/recommendation_binding.dart';
 import '../modules/recommendation/views/recommendation_view.dart';
 import '../modules/signin/bindings/signin_binding.dart';
+import '../modules/signin/controllers/signin_controller.dart';
 import '../modules/signin/views/signin_view.dart';
 import '../modules/signup/bindings/signup_binding.dart';
 import '../modules/signup/views/signup_view.dart';
@@ -64,7 +73,11 @@ class AppPages {
     GetPage(
       name: _Paths.SIGNIN,
       page: () => const SigninView(),
-      binding: SigninBinding(),
+      binding: BindingsBuilder(() {
+        Get.create<SigninController>(
+          () => SigninController(),
+        );
+      }),
     ),
     GetPage(
       name: _Paths.ENTER_DETAILS,
@@ -162,6 +175,28 @@ class AppPages {
       name: _Paths.MAIN_NAVIGATION,
       page: () => const MainNavigationView(),
       binding: MainNavigationBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFIKASI,
+      page: () => const NotifikasiView(),
+      binding: NotifikasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.LUPA_PASSWORD,
+      page: () => const LupaPasswordView(),
+      binding: LupaPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.OTP,
+      page: () => OtpView(),
+      binding: OtpBinding(),
+    ),
+    GetPage(
+      name:'/password-baru',
+      page:(){
+        Get.put(PasswordBaruController());
+        return PasswordBaruView();
+      }
     ),
   ];
 }

@@ -14,12 +14,17 @@ class DetailSleepView extends StatelessWidget {
 
   Color getCategoryColor(String kategori) {
     switch (kategori) {
-      case "Baik":
+      case "Sangat Baik":
         return Colors.green;
+
       case "Cukup":
         return Colors.orange;
-      default:
+
+      case "Buruk":
         return Colors.redAccent;
+
+      default:
+        return Colors.grey;
     }
   }
 
@@ -27,55 +32,108 @@ class DetailSleepView extends StatelessWidget {
 
   String getInsight(String kategori) {
     switch (kategori) {
-      case "Baik":
-        return "Kualitas tidurmu sudah baik dan membantu tubuh tetap fit 😴";
+      case "Sangat Baik":
+        return "Pola tidurmu sangat baik dan mendukung kesehatan fisik maupun mental 😴";
+
       case "Cukup":
-        return "Tidurmu cukup baik, tapi masih bisa lebih optimal 🌙";
+        return "Pola tidurmu cukup baik, tetapi masih dapat ditingkatkan 🌙";
+
       default:
-        return "Pola tidurmu masih kurang dan perlu diperbaiki 💤";
+        return "Pola tidurmu masih kurang baik dan perlu diperbaiki 💤";
     }
   }
 
   /// ================= MAPPING =================
 
   String mapDurasi(int val) {
-    return val == 3
-        ? "7–9 jam"
-        : val == 2
-            ? "5–6 / >9 jam"
-            : "<5 jam";
+    switch (val) {
+      case 1:
+        return "7–9 jam";
+      case 2:
+        return "5–6 jam / >9 jam";
+      case 3:
+        return "< 5 jam";
+      default:
+        return "-";
+    }
   }
 
   String mapGangguan(int val) {
-    return val == 3
-        ? "Tidak ada"
-        : val == 2
-            ? "1–2 kali"
-            : ">2 kali";
-  }
-
-  String mapTerbangun(int val) {
-    return val == 3
-        ? "<15 menit"
-        : val == 2
-            ? "15–30 menit"
-            : ">30 menit";
+    switch (val) {
+      case 1:
+        return "Tidak pernah";
+      case 2:
+        return "Sedikit";
+      case 3:
+        return "Ya, sering";
+      default:
+        return "-";
+    }
   }
 
   String mapKualitas(int val) {
-    return val == 3
-        ? "Nyenyak"
-        : val == 2
-            ? "Cukup"
-            : "Tidak nyenyak";
+    switch (val) {
+      case 1:
+        return "Nyenyak";
+      case 2:
+        return "Cukup nyenyak";
+      case 3:
+        return "Tidak nyenyak";
+      default:
+        return "-";
+    }
   }
 
-  String mapKeteraturan(int val) {
-    return val == 3
-        ? "Teratur"
-        : val == 2
-            ? "Kadang"
-            : "Tidak teratur";
+  String mapTerbangun(int val) {
+    switch (val) {
+      case 1:
+        return "Tidak pernah";
+      case 2:
+        return "1–2 kali";
+      case 3:
+        return "> 2 kali";
+      default:
+        return "-";
+    }
+  }
+
+  String mapMengantuk(int val) {
+    switch (val) {
+      case 1:
+        return "Tidak";
+      case 2:
+        return "Sedikit";
+      case 3:
+        return "Ya";
+      default:
+        return "-";
+    }
+  }
+
+  String mapLatensi(int val) {
+    switch (val) {
+      case 1:
+        return "< 15 menit";
+      case 2:
+        return "15–30 menit";
+      case 3:
+        return "> 30 menit";
+      default:
+        return "-";
+    }
+  }
+
+  String mapJadwal(int val) {
+    switch (val) {
+      case 1:
+        return "Sebelum 22.00";
+      case 2:
+        return "22.00 – 23.30";
+      case 3:
+        return "Lewat dari 23.30";
+      default:
+        return "-";
+    }
   }
 
   @override
@@ -89,7 +147,7 @@ class DetailSleepView extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: darkText),
         title: const Text(
-          "Laporan Tidur",
+          "Pola Tidur",
           style: TextStyle(
             color: darkText,
             fontWeight: FontWeight.w700,
@@ -105,7 +163,7 @@ class DetailSleepView extends StatelessWidget {
         }
 
         final kategori = controller.sleepKategori.value;
-        final skor = controller.sleepSkor.value;
+        final skor = controller.sleepRawScore.value;
         final color = getCategoryColor(kategori);
 
         return SingleChildScrollView(
@@ -193,7 +251,7 @@ class DetailSleepView extends StatelessWidget {
                               const SizedBox(height: 4),
 
                               Text(
-                                "$skor / 15",
+                                "$skor / 21",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -210,7 +268,7 @@ class DetailSleepView extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: LinearProgressIndicator(
-                              value: skor / 15,
+                              value: skor / 21,
                               minHeight: 10,
                               backgroundColor:
                                   Colors.white.withValues(alpha: 0.25),
@@ -229,7 +287,7 @@ class DetailSleepView extends StatelessWidget {
               /// ================= TITLE =================
 
               const Text(
-                "Ringkasan Tidur",
+                "Ringkasan Pola Tidur",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -252,18 +310,28 @@ class DetailSleepView extends StatelessWidget {
               ),
 
               _reportItem(
-                "Lama Terbangun",
-                mapTerbangun(controller.lamaTerbangun.value),
-              ),
-
-              _reportItem(
                 "Kualitas Tidur",
                 mapKualitas(controller.kualitas.value),
               ),
 
               _reportItem(
-                "Keteraturan Tidur",
-                mapKeteraturan(controller.keteraturan.value),
+                "Terbangun Malam",
+                mapTerbangun(controller.lamaTerbangun.value),
+              ),
+
+              _reportItem(
+                "Mengantuk Siang",
+                mapMengantuk(controller.mengantukSiang.value),
+              ),
+
+              _reportItem(
+                "Latensi Tidur",
+                mapLatensi(controller.latensiTidur.value),
+              ),
+
+              _reportItem(
+                "Jadwal Tidur",
+                mapJadwal(controller.jadwalTidur.value),
               ),
 
               const SizedBox(height: 24),
@@ -368,26 +436,29 @@ class DetailSleepView extends StatelessWidget {
   /// ================= TIPS =================
 
   List<String> _getTips(String kategori) {
-    if (kategori == "Baik") {
+    if (kategori == "Sangat Baik") {
       return [
-        "Pertahankan durasi tidur 7–9 jam setiap hari",
-        "Jaga konsistensi jam tidur dan bangun",
-        "Hindari begadang terlalu sering",
-      ];
-    } else if (kategori == "Cukup") {
-      return [
-        "Kurangi penggunaan gadget sebelum tidur",
-        "Perbaiki jadwal tidur agar lebih konsisten",
-        "Ciptakan suasana kamar yang nyaman",
-      ];
-    } else {
-      return [
-        "Tidur minimal 7–9 jam per hari",
-        "Kurangi konsumsi kafein di malam hari",
-        "Hindari bermain HP sebelum tidur",
-        "Tidur dan bangun di jam yang sama setiap hari",
+        "Pertahankan durasi tidur 7-9 jam",
+        "Jaga konsistensi jam tidur",
+        "Pertahankan kebiasaan tidur sehat",
       ];
     }
+
+    if (kategori == "Cukup") {
+      return [
+        "Kurangi penggunaan gadget sebelum tidur",
+        "Perbaiki jadwal tidur",
+        "Kurangi gangguan saat tidur",
+      ];
+    }
+
+    return [
+      "Tidur minimal 7-9 jam",
+      "Kurangi konsumsi kafein malam hari",
+      "Hindari bermain HP sebelum tidur",
+      "Tidur dan bangun pada jam yang sama",
+      "Lakukan relaksasi sebelum tidur",
+    ];
   }
 
   /// ================= REPORT ITEM =================

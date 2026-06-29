@@ -8,45 +8,36 @@ class SignupView extends GetView<SignupController> {
   static const Color primary = Color(0xFF4ADE80);
   static const Color secondary = Color(0xFF60A5FA);
   static const Color darkText = Color(0xFF1E293B);
+  static const Color bgColor = Color(0xFFF5F7FB);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
-
+      backgroundColor: bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              const SizedBox(height: 18),
-
-              /// ================= LOGO =================
-
+              /// LOGO
               Center(
                 child: Container(
-                  width: 68,
-                  height: 68,
+                  width: 72,
+                  height: 72,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        primary,
-                        secondary,
-                      ],
+                      colors: [primary, secondary],
                     ),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: secondary.withValues(alpha: 0.18),
+                        color: primary.withValues(alpha: 0.18),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-
                   child: const Icon(
                     Icons.favorite_rounded,
                     color: Colors.white,
@@ -55,15 +46,14 @@ class SignupView extends GetView<SignupController> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 25),
 
-              /// ================= TITLE =================
-
+              /// TITLE
               const Center(
                 child: Text(
-                  "Daftar",
+                  "Buat Akun 🌱",
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: darkText,
                   ),
@@ -74,59 +64,48 @@ class SignupView extends GetView<SignupController> {
 
               Center(
                 child: Text(
-                  "Mulai hidup sehatmu 🌱",
+                  "Mulai perjalanan hidup sehatmu",
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 30),
 
-              /// ================= NAMA =================
-
-              _label("Nama Lengkap"),
-
+              /// NAMA
               TextField(
                 controller: controller.nameController,
                 decoration: _inputDecoration(
-                  hint: "Masukkan nama lengkap",
+                  hint: "Nama lengkap",
                   icon: Icons.person_rounded,
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 15),
 
-              /// ================= EMAIL =================
-
-              _label("Email"),
-
+              /// EMAIL
               TextField(
                 controller: controller.emailController,
                 keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
                 decoration: _inputDecoration(
-                  hint: "Masukkan email",
+                  hint: "Email",
                   icon: Icons.email_rounded,
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 15),
 
-              /// ================= PASSWORD =================
-
-              _label("Password"),
-
+              /// PASSWORD
               Obx(
                 () => TextField(
                   controller: controller.passwordController,
                   obscureText: controller.isPasswordHidden.value,
-
                   decoration: _inputDecoration(
-                    hint: "Masukkan password",
+                    hint: "Password",
                     icon: Icons.lock_rounded,
-
                     suffix: IconButton(
                       onPressed: () {
                         controller.isPasswordHidden.toggle();
@@ -142,28 +121,20 @@ class SignupView extends GetView<SignupController> {
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 15),
 
-              /// ================= KONFIRMASI PASSWORD =================
-
-              _label("Konfirmasi Password"),
-
+              /// KONFIRMASI PASSWORD
               Obx(
                 () => TextField(
-                  controller:
-                      controller.confirmPasswordController,
-
+                  controller: controller.confirmPasswordController,
                   obscureText:
                       controller.isConfirmPasswordHidden.value,
-
                   decoration: _inputDecoration(
-                    hint: "Ulangi password",
+                    hint: "Konfirmasi password",
                     icon: Icons.lock_reset_rounded,
-
                     suffix: IconButton(
                       onPressed: () {
-                        controller.isConfirmPasswordHidden
-                            .toggle();
+                        controller.isConfirmPasswordHidden.toggle();
                       },
                       icon: Icon(
                         controller.isConfirmPasswordHidden.value
@@ -176,110 +147,99 @@ class SignupView extends GetView<SignupController> {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 15),
 
-              /// ================= BUTTON =================
-
+              /// BUTTON DAFTAR
               SizedBox(
                 width: double.infinity,
-                height: 54,
-
+                height: 56,
                 child: ElevatedButton(
-                  onPressed: controller.signup,
-
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : controller.signup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primary,
-                    foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
-
-                  child: const Text(
+                  child: Obx(() {
+                      if(controller.isLoading.value){
+                      return const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      );
+                    }
+                    return const Text(
                     "Daftar",
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                      fontSize:16,
+                      fontWeight:FontWeight.w700,
+                      color:Colors.white
+                      ),
+                    );
+                  }),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              /// ================= DIVIDER =================
-
+              /// DIVIDER
               Row(
                 children: [
-
                   Expanded(
-                    child: Divider(
-                      color: Colors.grey.shade300,
-                    ),
+                    child: Divider(color: Colors.grey.shade300),
                   ),
-
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12),
-
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
                       "atau",
                       style: TextStyle(
                         color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-
                   Expanded(
-                    child: Divider(
-                      color: Colors.grey.shade300,
-                    ),
+                    child: Divider(color: Colors.grey.shade300),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              /// ================= GOOGLE =================
-
+              /// GOOGLE BUTTON
               SizedBox(
                 width: double.infinity,
-                height: 54,
-
+                height: 56,
                 child: OutlinedButton(
                   onPressed: controller.signupWithGoogle,
-
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.white,
-
                     side: BorderSide(
                       color: Colors.grey.shade300,
                     ),
-
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
-
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       Image.asset(
                         'assets/images/google.png',
                         height: 22,
                       ),
-
-                      const SizedBox(width: 12),
-
+                      const SizedBox(width: 10),
                       const Text(
-                        "Daftar dengan Google",
+                        "Lanjut dengan Google",
                         style: TextStyle(
                           color: darkText,
                           fontWeight: FontWeight.w700,
-                          fontSize: 15,
                         ),
                       ),
                     ],
@@ -287,27 +247,23 @@ class SignupView extends GetView<SignupController> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 15),
 
-              /// ================= LOGIN =================
-
+              /// LOGIN
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-
                     Text(
                       "Sudah punya akun?",
                       style: TextStyle(
                         color: Colors.grey.shade600,
                       ),
                     ),
-
                     GestureDetector(
                       onTap: () {
                         Get.toNamed('/signin');
                       },
-
                       child: const Padding(
                         padding: EdgeInsets.only(left: 6),
                         child: Text(
@@ -322,33 +278,12 @@ class SignupView extends GetView<SignupController> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 10),
             ],
           ),
         ),
       ),
     );
   }
-
-  /// ================= LABEL =================
-
-  Widget _label(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: darkText,
-        ),
-      ),
-    );
-  }
-
-  /// ================= INPUT =================
 
   InputDecoration _inputDecoration({
     required String hint,
@@ -357,39 +292,26 @@ class SignupView extends GetView<SignupController> {
   }) {
     return InputDecoration(
       hintText: hint,
-
       hintStyle: TextStyle(
         color: Colors.grey.shade500,
-        fontSize: 13,
       ),
-
       prefixIcon: Icon(
         icon,
         color: primary,
       ),
-
       suffixIcon: suffix,
-
       filled: true,
       fillColor: Colors.white,
-
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: 18,
+        horizontal: 16,
         vertical: 18,
       ),
-
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         borderSide: BorderSide.none,
       ),
-
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide.none,
-      ),
-
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         borderSide: const BorderSide(
           color: primary,
           width: 1.5,

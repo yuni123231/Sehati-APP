@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/providers/notification_service.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -148,7 +149,7 @@ class HomeView extends GetView<HomeController> {
                 Center(
                   child: IconButton(
                     onPressed: () {
-                      Get.toNamed('/notification');
+                      Get.toNamed('/notifikasi');
                     },
                     icon: const Icon(
                       Icons.notifications_rounded,
@@ -158,22 +159,20 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
 
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    width: 11,
-                    height: 11,
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 1.8,
-                      ),
-                    ),
-                  ),
-                ),
+                Obx(() => controller.hasNotif.value
+                    ? Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: Colors.redAccent,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      )
+                    : const SizedBox()),
               ],
             ),
           ),
@@ -366,7 +365,7 @@ Widget _heroCard() {
         Obx(
           () => _summaryItem(
             icon: Icons.directions_run_rounded,
-            title: "Aktivitas",
+            title: "Aktivitas Fisik",
             subtitle: controller.aktivitasSubtitle.value,
             score: controller.aktivitasSkor.value,
             color: Colors.green,
@@ -379,7 +378,7 @@ Widget _heroCard() {
         Obx(
           () => _summaryItem(
             icon: Icons.nightlight_round,
-            title: "Tidur",
+            title: "Pola Tidur",
             subtitle: controller.sleepSubtitle.value,
             score: controller.sleepSkor.value,
             color: Colors.indigo,
@@ -392,7 +391,7 @@ Widget _heroCard() {
         Obx(
           () => _summaryItem(
             icon: Icons.self_improvement_rounded,
-            title: "Stress",
+            title: "Manajemen Stress",
             subtitle: controller.stressSubtitle.value,
             score: controller.stressSkor.value,
             color: Colors.orange,
@@ -400,7 +399,7 @@ Widget _heroCard() {
               '/detail-stress',
               arguments: {
                 "kategori": controller.stressKategori.value,
-                "skor_total": controller.stressSkor.value,
+                "skor_total": controller.stressRawScore.value,
                 "kontrol_diri": controller.emosi.value,
                 "beban_pikiran": controller.copingStres.value,
                 "stres_harian": controller.frekuensiStres.value,
@@ -637,6 +636,26 @@ Widget _heroCard() {
     if (kategori.contains("Normal")) return Colors.green;
     if (kategori.contains("Kurus")) return Colors.orange;
     return Colors.redAccent;
+  }
+
+  Color _getLifestyleColor(String kategori) {
+    switch (kategori) {
+      case "Sangat Baik":
+        return Colors.green;
+
+      case "Baik":
+        return Colors.lightGreen;
+
+      case "Cukup":
+        return Colors.orange;
+
+      case "Perlu Perbaikan":
+      case "Buruk":
+        return Colors.redAccent;
+
+      default:
+        return Colors.grey;
+    }
   }
 
   String _getBmiMessage(double bmi) {
@@ -1089,24 +1108,6 @@ Widget _lifestyleBalanceCard() {
                       ],
                     ),
                   ),
-
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 12,
-                  //     vertical: 8,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     color: color.withValues(alpha: 0.12),
-                  //     borderRadius: BorderRadius.circular(14),
-                  //   ),
-                  //   child: Text(
-                  //     score.toStringAsFixed(1),
-                  //     style: TextStyle(
-                  //       color: color,
-                  //       fontWeight: FontWeight.w800,
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),

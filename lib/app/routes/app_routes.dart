@@ -24,6 +24,9 @@ abstract class Routes {
   static const PANDUAN = _Paths.PANDUAN;
   static const PROGRES = _Paths.PROGRES;
   static const MAIN_NAVIGATION = _Paths.MAIN_NAVIGATION;
+  static const NOTIFIKASI = _Paths.NOTIFIKASI;
+  static const LUPA_PASSWORD = _Paths.LUPA_PASSWORD;
+  static const OTP = _Paths.OTP;
 }
 
 abstract class _Paths {
@@ -49,4 +52,7 @@ abstract class _Paths {
   static const PANDUAN = '/panduan';
   static const PROGRES = '/progres';
   static const MAIN_NAVIGATION = '/main-navigation';
+  static const NOTIFIKASI = '/notifikasi';
+  static const LUPA_PASSWORD = '/lupa-password';
+  static const OTP = '/otp';
 }

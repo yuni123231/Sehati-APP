@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 
 import '../../../data/providers/api_services.dart';
 import '../../home/controllers/home_controller.dart';
+import '../../progres/controllers/progres_controller.dart';
 import 'detail_stress_controller.dart';
 
 class AddMoodController extends GetxController {
@@ -169,6 +170,12 @@ class AddMoodController extends GetxController {
       final home = Get.find<HomeController>();
       await home.fetchStress();
       home.updateLifestyleIfReady();
+      
+      // REFRESH REPORT
+      if (Get.isRegistered<ProgresController>()) {
+        final progres = Get.find<ProgresController>();
+        await progres.loadProgress();
+      }
     } else {
       Get.snackbar(
         "Error",

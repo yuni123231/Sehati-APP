@@ -66,6 +66,13 @@ class ProfileController extends GetxController {
       return;
     }
 
+    isReminderOn.value =
+      box.read('dailyReminder_$userId') ?? false;
+
+    if (isReminderOn.value) {
+      NotificationService.scheduleDailyReminder(20,30);
+    }
+
     fetchUserProfile();
   }
 
@@ -128,36 +135,25 @@ class ProfileController extends GetxController {
   /// =====================================================
 
   void toggleReminder(bool value) {
-    print("TOGGLE: $value");
-
     isReminderOn.value = value;
 
-    box.write('dailyReminder', value);
+    box.write('dailyReminder_$userId', value);
 
     if (value) {
-
-      NotificationService.scheduleDailyReminder(
-        10,
-        40,
-      );
-
-      print("SCHEDULE DIPANGGIL");
+      NotificationService.scheduleDailyReminder(20,30);
 
       Get.snackbar(
         "Reminder ON",
         "Pengingat harian aktif",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
-
     } else {
       NotificationService.cancelReminder();
-
-      print("SCHEDULE DIPANGGIL");
 
       Get.snackbar(
         "Reminder OFF",
         "Notifikasi dimatikan",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -189,7 +185,7 @@ class ProfileController extends GetxController {
           Get.snackbar(
             "Berhasil",
             "Foto profil berhasil diperbarui",
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
           );
 
           fetchUserProfile();
@@ -201,7 +197,7 @@ class ProfileController extends GetxController {
       Get.snackbar(
         "Error",
         "Gagal upload foto",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -215,7 +211,8 @@ class ProfileController extends GetxController {
     await api.logout();
 
     /// Hapus local session
-    box.erase();
+    box.remove('userId');
+    box.remove('token');
 
     Get.offAllNamed('/signin');
   }

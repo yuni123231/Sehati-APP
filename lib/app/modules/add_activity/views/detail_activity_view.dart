@@ -5,380 +5,382 @@ import '../../home/controllers/home_controller.dart';
 class DetailActivityView extends StatelessWidget {
   DetailActivityView({super.key});
 
-  final controller = Get.find<HomeController>();
+  final HomeController controller =
+    Get.find<HomeController>();
 
   static const Color primary = Color(0xFF4ADE80);
   static const Color darkText = Color(0xFF1E293B);
 
-  /// ================= COLOR =================
-
   Color getCategoryColor(String kategori) {
     switch (kategori) {
-      case "Aktif Tinggi":
+      case "Aktif (Baik)":
         return Colors.green;
+
       case "Cukup Aktif":
         return Colors.orange;
+
       default:
-        return Colors.redAccent;
+        return Colors.red;
     }
   }
-
-  /// ================= INSIGHT =================
 
   String getInsight(String kategori) {
     switch (kategori) {
-      case "Aktif Tinggi":
-        return "Aktivitas fisikmu sangat baik dan tubuhmu cukup aktif setiap hari 💪";
+      case "Aktif (Baik)":
+        return "Aktivitas fisikmu sudah memenuhi pedoman WHO untuk remaja 💪";
+
       case "Cukup Aktif":
-        return "Aktivitasmu sudah lumayan baik, tapi masih bisa ditingkatkan 🚀";
+        return "Aktivitas fisikmu cukup baik tetapi masih perlu ditingkatkan 🚀";
+
       default:
-        return "Aktivitas fisikmu masih kurang dan perlu lebih banyak gerak ❤️";
+        return "Aktivitas fisikmu masih kurang dari rekomendasi WHO ❤️";
     }
   }
-
-  /// ================= REKOMENDASI =================
 
   List<String> getRekomendasi(String kategori) {
-    if (kategori == "Aktif Tinggi") {
+    if (kategori == "Aktif (Baik)") {
       return [
-        "Pertahankan pola olahraga secara konsisten",
-        "Variasikan aktivitas agar tubuh tetap bugar",
-        "Jangan lupa recovery dan tidur cukup",
+        "Pertahankan aktivitas minimal 60 menit setiap hari",
+        "Lakukan olahraga intensitas sedang hingga berat",
+        "Kurangi waktu duduk terlalu lama",
       ];
-    } else if (kategori == "Cukup Aktif") {
+    }
+
+    if (kategori == "Cukup Aktif") {
       return [
-        "Tambah aktivitas ringan setiap hari",
-        "Kurangi duduk terlalu lama",
-        "Coba olahraga rutin minimal 30 menit",
+        "Tambahkan durasi aktivitas hingga 60 menit per hari",
+        "Usahakan aktif minimal 5 hari dalam seminggu",
+        "Kurangi waktu bermain gadget terlalu lama",
       ];
-    } else {
-      return [
-        "Mulai dari jalan kaki 20–30 menit/hari",
-        "Kurangi rebahan terlalu lama",
-        "Gunakan tangga atau aktivitas kecil sehari-hari",
-        "Targetkan olahraga minimal 150 menit/minggu",
-      ];
+    }
+
+    return [
+      "Mulai aktivitas fisik minimal 30 menit",
+      "Targetkan 60 menit aktivitas setiap hari",
+      "Kurangi duduk atau rebahan lebih dari 8 jam",
+      "Lakukan olahraga minimal 5 hari per minggu",
+    ];
+  }
+
+  String mapSedentary(int value) {
+    switch (value) {
+      case 3:
+        return "< 4 jam";
+
+      case 2:
+        return "4 - 8 jam";
+
+      default:
+        return "> 8 jam";
     }
   }
 
-  /// ================= MAPPING =================
-
-  String mapFrekuensi(int val) {
-    return val == 3
-        ? "≥ 3x/minggu"
-        : val == 2
-            ? "1–2x/minggu"
-            : "Jarang";
+  String mapFrekuensi(int value) {
+    if (value >= 5) {
+      return "$value hari/minggu (Baik)";
+    } else if (value >= 3) {
+      return "$value hari/minggu";
+    } else {
+      return "$value hari/minggu (Kurang)";
+    }
   }
 
-  String mapJenis(int val) {
-    return val == 3
-        ? "Berat"
-        : val == 2
-            ? "Sedang"
-            : "Ringan";
+  String mapDurasi(int value) {
+    switch (value) {
+      case 3:
+        return "> 60 menit/hari";
+
+      case 2:
+        return "30 - 60 menit/hari";
+
+      default:
+        return "< 30 menit/hari";
+    }
   }
 
-  String mapSedentary(int val) {
-    return val == 3
-        ? "< 6 jam"
-        : val == 2
-            ? "6–8 jam"
-            : "> 8 jam";
-  }
+  String mapIntensitas(int value) {
+    switch (value) {
+      case 3:
+        return "Berat (Lari, futsal, basket, gym)";
 
-  String mapKonsistensi(int val) {
-    return val == 3
-        ? "Rutin"
-        : val == 2
-            ? "Kadang"
-            : "Jarang";
+      case 2:
+        return "Sedang (Jalan cepat, sepeda santai)";
+
+      default:
+        return "Ringan (Jalan santai / banyak diam)";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor:
+          const Color(0xFFF5F7FB),
 
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
+        backgroundColor: Colors.transparent,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: darkText),
+        iconTheme:
+            const IconThemeData(color: darkText),
         title: const Text(
-          "Laporan Aktivitas",
+          "Aktivitas Fisik",
           style: TextStyle(
             color: darkText,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
 
       body: Obx(() {
-        if (controller.aktivitasKategori.value.isEmpty) {
+        if (controller
+            .aktivitasKategori.value.isEmpty) {
           return const Center(
-            child: Text("Belum ada data aktivitas"),
+            child: Text(
+                "Belum ada data aktivitas"),
           );
         }
 
-        final kategori = controller.aktivitasKategori.value;
-        final skor = controller.aktivitasSkor.value;
-        final color = getCategoryColor(kategori);
+        final kategori =
+            controller.aktivitasKategori.value;
+
+        final skor =
+            controller.aktivitasSkor.value;
+
+        final color =
+            getCategoryColor(kategori);
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding:
+              const EdgeInsets.all(20),
+
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
 
-              /// ================= REPORT HEADER =================
+              /// HEADER
 
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding:
+                    const EdgeInsets.all(24),
+
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                     colors: [
                       color,
-                      color.withValues(alpha: 0.75),
+                      color.withValues(
+                          alpha: 0.7),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius:
+                      BorderRadius.circular(28),
                 ),
+
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
 
                     const Text(
-                      "Laporan Hari Ini",
+                      "Hasil Aktivitas",
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 13,
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(
+                        height: 12),
 
                     Text(
                       kategori,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style:
+                          const TextStyle(
                         fontSize: 28,
-                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        fontWeight:
+                            FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(
+                        height: 10),
 
                     Text(
                       getInsight(kategori),
-                      style: const TextStyle(
+                      style:
+                          const TextStyle(
                         color: Colors.white,
                         height: 1.5,
-                        fontSize: 13,
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(
+                        height: 20),
 
                     Row(
                       children: [
 
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
+                          padding:
+                              const EdgeInsets.all(14),
+                          decoration:
+                              BoxDecoration(
+                            color: Colors.white
+                                .withValues(
+                                    alpha:
+                                        0.2),
+                            borderRadius:
+                                BorderRadius
+                                    .circular(
+                                        16),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            children: [
-
-                              const Text(
-                                "Skor",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
-                              ),
-
-                              const SizedBox(height: 4),
-
-                              Text(
-                                "$skor",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: LinearProgressIndicator(
-                              value: (skor / 3000).clamp(0.0, 1.0),
-                              minHeight: 10,
-                              backgroundColor:
-                                  Colors.white.withValues(alpha: 0.25),
-                              color: Colors.white,
+                          child: Text(
+                            "$skor / 12",
+                            style:
+                                const TextStyle(
+                              color:
+                                  Colors.white,
+                              fontSize: 22,
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
                             ),
                           ),
                         ),
+
+                        const SizedBox(
+                            width: 14),
+
+                        Expanded(
+                          child:
+                              LinearProgressIndicator(
+                            value: (skor / 15)
+                                .clamp(
+                                    0.0, 1.0),
+                            minHeight: 10,
+                          ),
+                        ),
                       ],
-                    ),
+                    )
                   ],
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              /// ================= SECTION TITLE =================
-
               const Text(
-                "Ringkasan Aktivitas",
+                "Ringkasan Aktivitas Fisik",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: darkText,
+                  fontWeight:
+                      FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              /// ================= REPORT ITEM =================
-
-              _reportItem(
+              _item(
                 "Durasi Aktivitas",
-                "${controller.menitPerHari.value} menit per hari",
+                mapDurasi(
+                  controller.menitPerHari.value,
+                ),
               ),
 
-              _reportItem(
-                "Hari Aktivitas",
-                "${controller.hariPerMinggu.value} hari per minggu",
+              _item(
+                "Frekuensi Mingguan",
+                mapFrekuensi(
+                    controller
+                        .frekuensi.value),
               ),
 
-              _reportItem(
-                "Frekuensi Olahraga",
-                mapFrekuensi(controller.frekuensi.value),
-              ),
-
-              _reportItem(
+              _item(
                 "Intensitas Aktivitas",
-                mapJenis(controller.jenis.value),
+                mapIntensitas(
+                    controller
+                        .jenis.value),
               ),
 
-              _reportItem(
+              _item(
                 "Waktu Duduk",
-                mapSedentary(controller.sedentary.value),
-              ),
-
-              _reportItem(
-                "Konsistensi",
-                mapKonsistensi(controller.konsistensi.value),
+                mapSedentary(
+                    controller
+                        .sedentary.value),
               ),
 
               const SizedBox(height: 24),
-
-              /// ================= REKOMENDASI =================
 
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(22),
+                padding:
+                    const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+                  borderRadius:
+                      BorderRadius.circular(
+                          24),
                 ),
 
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
 
-                    Row(
-                      children: [
-
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(
-                            Icons.tips_and_updates_rounded,
-                            color: color,
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        const Text(
-                          "Rekomendasi",
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: darkText,
-                          ),
-                        ),
-                      ],
+                    const Text(
+                      "Rekomendasi",
+                      style: TextStyle(
+                        fontWeight:
+                            FontWeight.bold,
+                        fontSize: 17,
+                      ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(
+                        height: 18),
 
-                    ...getRekomendasi(kategori).map(
+                    ...getRekomendasi(
+                            kategori)
+                        .map(
                       (e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding:
+                            const EdgeInsets
+                                .only(
+                                    bottom:
+                                        10),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment
+                                  .start,
                           children: [
 
-                            Container(
-                              margin: const EdgeInsets.only(top: 6),
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                              ),
+                            Icon(
+                              Icons
+                                  .check_circle,
+                              color: color,
+                              size: 18,
                             ),
 
-                            const SizedBox(width: 10),
+                            const SizedBox(
+                                width: 10),
 
                             Expanded(
                               child: Text(
                                 e,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  height: 1.6,
-                                  color: Colors.grey.shade700,
+                                style:
+                                    const TextStyle(
+                                  height:
+                                      1.5,
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
-
-              const SizedBox(height: 30),
             ],
           ),
         );
@@ -386,22 +388,20 @@ class DetailActivityView extends StatelessWidget {
     );
   }
 
-  /// ================= REPORT ITEM =================
-
-  Widget _reportItem(String title, String value) {
+  Widget _item(
+      String title,
+      String value,
+      ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
+      margin:
+          const EdgeInsets.only(bottom: 14),
+      padding:
+          const EdgeInsets.all(18),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius:
+            BorderRadius.circular(20),
       ),
 
       child: Row(
@@ -409,26 +409,29 @@ class DetailActivityView extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
 
                 Text(
                   title,
                   style: TextStyle(
+                    color:
+                        Colors.grey.shade600,
                     fontSize: 12,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 6),
+                const SizedBox(
+                    height: 5),
 
                 Text(
                   value,
-                  style: const TextStyle(
+                  style:
+                      const TextStyle(
+                    fontWeight:
+                        FontWeight.bold,
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: darkText,
                   ),
                 ),
               ],
@@ -436,10 +439,9 @@ class DetailActivityView extends StatelessWidget {
           ),
 
           const Icon(
-            Icons.insights_rounded,
+            Icons.insights,
             color: primary,
-            size: 22,
-          ),
+          )
         ],
       ),
     );

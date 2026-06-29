@@ -166,10 +166,10 @@ class ProgresView extends GetView<ProgresController> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 18),
 
                         SizedBox(
-                          height: 150,
+                          height: 160,
                           child: LineChart(
                             LineChartData(
                               minY: 0,
@@ -187,25 +187,24 @@ class ProgresView extends GetView<ProgresController> {
                                 topTitles: const AxisTitles(
                                   sideTitles: SideTitles(showTitles: false),
                                 ),
+                                
+                                /// ================= FIX: PAKAI DATA CONTROLLER =================
                                 bottomTitles: AxisTitles(
                                   sideTitles: SideTitles(
                                     showTitles: true,
-                                    reservedSize: 25,
+                                    interval: 1,
+                                    reservedSize: 28,
                                     getTitlesWidget: (value, meta) {
-                                      const days = [
-                                        "Min",
-                                        "Sen",
-                                        "Sel",
-                                        "Rab",
-                                        "Kam",
-                                        "Jum",
-                                        "Sab"
-                                      ];
+                                      int i = value.toInt();
+
+                                      if (i < 0 || i >= controller.weeklyDays.length) {
+                                        return const SizedBox();
+                                      }
 
                                       return Padding(
                                         padding: const EdgeInsets.only(top: 8),
                                         child: Text(
-                                          days[value.toInt()],
+                                          controller.weeklyDays[i],
                                           style: const TextStyle(
                                             fontSize: 10,
                                           ),
@@ -218,23 +217,19 @@ class ProgresView extends GetView<ProgresController> {
 
                               lineBarsData: [
                                 LineChartBarData(
-                                  isCurved: false,
-                                  curveSmoothness: 0.2,
-                                  barWidth: 4,
+                                  isCurved: true,
+                                  barWidth: 3,
                                   color: primary,
-                                  spots: controller.weeklyProgress
-                                      .asMap()
-                                      .entries
-                                      .map(
-                                        (e) => FlSpot(
-                                          e.key.toDouble(),
-                                          e.value,
-                                        ),
-                                      )
-                                      .toList(),
+                                  spots: List.generate(
+                                    controller.weeklyProgress.length,
+                                    (i) => FlSpot(
+                                      i.toDouble(),
+                                      controller.weeklyProgress[i],
+                                    ),
+                                  ),
                                   belowBarData: BarAreaData(
                                     show: true,
-                                    color: primary.withOpacity(0.1),
+                                    color: primary.withOpacity(0.15),
                                   ),
                                 ),
                               ],
@@ -244,8 +239,92 @@ class ProgresView extends GetView<ProgresController> {
                       ],
                     ),
                   ),
+                  
+                  const SizedBox(height: 30),
 
-                  const SizedBox(height: 28),
+                  /// ================= AKTIVITAS FISIK MINGGUAN =================
+
+                  const Text(
+                    "Progress Aktivitas Fisik",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      children: [
+
+                        const Icon(
+                          Icons.directions_run,
+                          color: Colors.green,
+                          size: 42,
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Text(
+                          controller.aktivitasKategoriWHO.value,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          "${controller.frekuensiAktivitas.value} Hari Aktif Minggu Ini",
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+
+                        const SizedBox(height: 15),
+
+                        LinearProgressIndicator(
+                          value: controller.frekuensiAktivitas.value / 7,
+                          minHeight: 10,
+                          borderRadius: BorderRadius.circular(10),
+                          backgroundColor: Colors.grey.shade300,
+                          color: Colors.green,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        Text(
+                          "${((controller.frekuensiAktivitas.value / 7) * 100).toStringAsFixed(0)}%",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          "Target WHO : Aktif 5-7 hari dalam seminggu",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
 
                   /// ================= TODAY REPORT =================
                   const Text(
@@ -484,7 +563,7 @@ class ProgresView extends GetView<ProgresController> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        "$label : ${value ?? '-'}",
+        "$label : $value",
         style: const TextStyle(
           fontSize: 11,
         ),
@@ -500,10 +579,10 @@ class ProgresView extends GetView<ProgresController> {
       case "Seimbang":
         return Colors.lightGreen;
 
-      case "Kurang Seimbang":
+      case "Cukup Seimbang":
         return Colors.orange;
 
-      case "Tidak Seimbang":
+      case "Perlu Perbaikan":
         return Colors.red;
 
       case "Belum Ada Data":

@@ -123,21 +123,21 @@ class AddDietaryHabitView extends GetView<AddDietaryHabitController> {
             const SizedBox(height: 16),
 
             _questionCard("Berapa kali kamu makan hari ini?", controller.q1, [
-              {"label": "3x/hari teratur", "value": 3},
-              {"label": "2x/hari", "value": 2},
-              {"label": "≤1x/Tidak teratur", "value": 1},
+              {"label": "3x sehari (teratur)", "value": 3},
+              {"label": "2x sehari", "value": 2},
+              {"label": "≤ 1x sehari (tidak teratur)", "value": 1},
             ]),
 
             _questionCard("Apakah kamu sarapan hari ini?", controller.q2, [
-              {"label": "Ya", "value": 3},
-              {"label": "Kadang", "value": 2},
-              {"label": "Tidak", "value": 1},
+              {"label": "Ya, sarapan bergizi", "value": 3},
+              {"label": "Hanya ngemil / minum teh/kopi", "value": 2},
+              {"label": "Tidak sarapan sama sekali", "value": 1},
             ]),
 
             _questionCard("Apakah hari ini kamu makan buah dan sayur?", controller.q3, [
-              {"label": "≥5 porsi/hari", "value": 3},
-              {"label": "2–4 porsi/hari", "value": 2},
-              {"label": "<2 porsi/hari", "value": 1},
+              {"label": "Banyak (Tiap kali makan ada)", "value": 3},
+              {"label": "Sedikit (Hanya 1x makan ada)", "value": 2},
+              {"label": "Tidak makan sama sekali", "value": 1},
             ]),
 
             _questionCard("Apakah hari ini kamu makan fast food/gorengan?", controller.q4, [

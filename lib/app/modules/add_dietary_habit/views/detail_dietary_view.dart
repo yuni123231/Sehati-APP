@@ -11,7 +11,7 @@ class DetailDietaryView extends StatelessWidget {
 
   Color getCategoryColor(String kategori) {
     switch (kategori) {
-      case "Baik":
+      case "Sangat Baik":
         return const Color(0xFF22C55E);
 
       case "Cukup":
@@ -26,14 +26,14 @@ class DetailDietaryView extends StatelessWidget {
 
   String getInsight(String kategori) {
     switch (kategori) {
-      case "Baik":
-        return "Pola makanmu sudah cukup baik dan seimbang hari ini.";
+      case "Sangat Baik":
+        return "Pola makanmu sangat baik dan sudah mendukung kesehatan tubuh.";
 
       case "Cukup":
-        return "Kebiasaan makanmu sudah lumayan baik, tapi masih bisa diperbaiki.";
+        return "Pola makanmu cukup baik, tetapi masih ada beberapa kebiasaan yang dapat ditingkatkan.";
 
       default:
-        return "Pola makanmu masih perlu diperhatikan agar tubuh tetap sehat.";
+        return "Pola makanmu masih kurang baik dan perlu diperbaiki agar kesehatan tetap terjaga.";
     }
   }
 
@@ -54,11 +54,11 @@ class DetailDietaryView extends StatelessWidget {
       tips.add("Perbanyak konsumsi sayur dan buah setiap hari.");
     }
 
-    if (controller.junkFood.value > 1) {
+    if (controller.junkFood.value < 3) {
       tips.add("Kurangi makanan cepat saji dan tinggi lemak.");
     }
 
-    if (controller.minumanManis.value > 1) {
+    if (controller.minumanManis.value < 3) {
       tips.add("Batasi minuman manis agar gula harian tetap terkontrol.");
     }
 
@@ -93,17 +93,24 @@ class DetailDietaryView extends StatelessWidget {
   }
 
   String mapSarapan(int val) {
-    return val == 3 ? "Ya" : "Tidak";
+    switch (val) {
+      case 3:
+        return "Ya, sarapan bergizi";
+      case 2:
+        return "Hanya ngemil / minum teh/kopi";
+      default:
+        return "Tidak sarapan";
+    }
   }
 
   String mapSayur(int val) {
     switch (val) {
       case 3:
-        return "≥5 porsi/hari";
+        return "Banyak (tiap kali makan ada)";
       case 2:
-        return "2–4 porsi/hari";
+        return "Sedikit (hanya 1x makan ada)";
       default:
-        return "<2 porsi/hari";
+        return "Tidak makan sama sekali";
     }
   }
 
@@ -121,13 +128,14 @@ class DetailDietaryView extends StatelessWidget {
   String mapManis(int val) {
     switch (val) {
       case 3:
-        return "Tidak";
+        return "Tidak minum";
       case 2:
         return "1 kali";
       default:
         return ">1 kali";
     }
   }
+
    String mapAir(int val) {
     switch (val) {
       case 3:
@@ -142,11 +150,11 @@ class DetailDietaryView extends StatelessWidget {
   String mapMakananLengkap(int val) {
     switch (val) {
       case 3:
-        return "Lengkap";
+        return "Lengkap (karbo, protein, sayur)";
       case 2:
-        return "Cukup";
+        return "Cukup (karbo & lauk)";
       default:
-        return "Tidak Lengkap";
+        return "Tidak lengkap";
     }
   }
 
@@ -161,7 +169,7 @@ class DetailDietaryView extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
         title: const Text(
-          "Laporan Pola Makan",
+          "Pola Makan",
           style: TextStyle(
             color: Color(0xFF1E293B),
             fontWeight: FontWeight.w700,
@@ -332,16 +340,6 @@ class DetailDietaryView extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 6),
-
-              Text(
-                "Berikut hasil kebiasaan makanmu hari ini",
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-
               const SizedBox(height: 18),
 
               /// ================= REPORT CARD =================
@@ -377,7 +375,7 @@ class DetailDietaryView extends StatelessWidget {
               ),
 
               _reportItem(
-                "Komposisi Makanan",
+                "Keberagaman Makanan",
                 mapMakananLengkap(
                   controller.makananLengkap.value,
                 ),

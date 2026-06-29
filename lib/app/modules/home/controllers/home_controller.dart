@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import '../../../data/models/guide_item.dart';
 import '../../../data/providers/api_services.dart';
 
 class HomeController extends GetxController {
   final ApiServices api = ApiServices();
   final box = GetStorage();
+
+  RxBool hasNotif = false.obs;
 
   final userName = ''.obs;
   late int userId;
@@ -46,6 +47,7 @@ class HomeController extends GetxController {
   /// ================== STRESS ==================
   final stressKategori = ''.obs;
   final stressSkor = 0.obs;
+  final stressRawScore = 0.obs;
 
   final frekuensiStres = 0.obs;
   final tingkatStres = 0.obs;
@@ -57,12 +59,16 @@ class HomeController extends GetxController {
   /// ================== SLEEP ==================
   final sleepKategori = ''.obs;
   final sleepSkor = 0.obs;
+  final sleepRawScore = 0.obs;
 
   final durasiTidur = 0.obs;
   final gangguan = 0.obs;
   final lamaTerbangun = 0.obs;
   final kualitas = 0.obs;
   final keteraturan = 0.obs;
+  final mengantukSiang = 0.obs;
+  final latensiTidur = 0.obs;
+  final jadwalTidur = 0.obs;
 
   /// ================= REKOMENDASI =================
   final dietaryRekomendasi = <String>[].obs;
@@ -90,10 +96,10 @@ class HomeController extends GetxController {
   /// AKTIVITAS       = 20%
   /// POLA MAKAN      = 15%
 
-  static const double bobotMakan = 0.15;
-  static const double bobotAktivitas = 0.20;
-  static const double bobotTidur = 0.30;
-  static const double bobotStress = 0.35;
+  static const double bobotMakan = 0.25;
+  static const double bobotAktivitas = 0.143;
+  static const double bobotTidur = 0.25;
+  static const double bobotStress = 0.357;
 
   /// =========================================================
   /// PERHITUNGAN SAW
@@ -114,12 +120,10 @@ class HomeController extends GetxController {
   String get sawKategori {
     final score = sawLifestyleScore;
 
-    if (score >= 8) {
-      return "Sangat Sehat";
-    } else if (score >= 6) {
-      return "Sehat";
-    } else if (score >= 4) {
-      return "Cukup";
+    if (score >= 7.0) {
+      return "Seimbang";
+    } else if (score >= 5.5) {
+      return "Cukup Seimbang";
     } else {
       return "Perlu Perbaikan";
     }
@@ -132,88 +136,12 @@ class HomeController extends GetxController {
   String get sawStatus {
     final score = sawLifestyleScore;
 
-    if (score >= 8) {
-      return "Lifestyle Kamu Sangat Bagus ✨";
-    } else if (score >= 6) {
-      return "Lifestyle Kamu Sudah Baik 💪";
-    } else if (score >= 4) {
-      return "Lifestyle Kamu Cukup 🌱";
+    if (score >= 7.0) {
+      return "Gaya hidup kamu sudah seimbang ✨";
+    } else if (score >= 5.5) {
+      return "Gaya hidup kamu cukup baik, tetapi masih ada beberapa aspek yang perlu ditingkatkan 🌱";
     } else {
-      return "Lifestyle Kamu Perlu Diperbaiki ⚠️";
-    }
-  }
-
-  String get weakestParameter {
-
-    Map<String, double> skor = {
-      "Pola Makan": dietarySkor.value.toDouble(),
-      "Aktivitas Fisik": aktivitasSkor.value.toDouble(),
-      "Tidur": sleepSkor.value.toDouble(),
-      "Manajemen Stress": stressSkor.value.toDouble(),
-    };
-
-    return skor.entries
-        .reduce((a, b) => a.value < b.value ? a : b)
-        .key;
-  }
-
-  /// =========================================================
-  /// MESSAGE UI
-  /// =========================================================
-
-  String get sawMessage {
-
-    switch (weakestParameter) {
-
-      case "Pola Makan":
-        return
-            "Pola makan menjadi faktor yang paling perlu diperbaiki saat ini.";
-
-      case "Aktivitas Fisik":
-        return
-            "Aktivitas fisik menjadi faktor utama yang masih kurang.";
-
-      case "Tidur":
-        return
-            "Kualitas tidur menjadi faktor yang paling mempengaruhi lifestyle kamu.";
-
-      case "Manajemen Stress":
-        return
-            "Manajemen stress menjadi faktor yang paling perlu diperhatikan.";
-
-      default:
-        return
-            "Lifestyle kamu sudah cukup baik.";
-    }
-  }
-
-  /// =========================================================
-  /// TIPS UI
-  /// =========================================================
-
-  String get sawTips {
-
-    switch (weakestParameter) {
-
-      case "Pola Makan":
-        return
-            "Perbanyak sayur, kurangi junk food, dan minum air putih cukup 🍽️";
-
-      case "Aktivitas Fisik":
-        return
-            "Coba tambah jalan kaki atau stretching minimal 30 menit 🚶";
-
-      case "Tidur":
-        return
-            "Tidur lebih teratur dan hindari begadang 😴";
-
-      case "Manajemen Stress":
-        return
-            "Luangkan waktu relaksasi dan kurangi overthinking 🌿";
-
-      default:
-        return
-            "Pertahankan kebiasaan sehatmu setiap hari 🔥";
+      return "Perlu perbaikan pada beberapa kebiasaan harian ⚠️";
     }
   }
 
@@ -232,6 +160,7 @@ class HomeController extends GetxController {
   final lifestyleKategori = ''.obs;
   final lifestyleInsight = ''.obs;
   final lifestyleRecommendation = ''.obs;
+  final weakestParameter = ''.obs;
 
   bool get isLifestyleComplete =>
       aktivitasKategori.value.isNotEmpty &&
@@ -250,58 +179,33 @@ class HomeController extends GetxController {
       return;
     }
     
-
-    // /// 🔥 URUTAN AMAN
-    // fetchUserProfile().then((_) async {
-    //   await fetchConsumedCalories();
-    //   await fetchActivity();
-    //   updateLifestyleIfReady();
-    //   await fetchDietary();
-    //   updateLifestyleIfReady();
-    //   await fetchStress();
-    //   updateLifestyleIfReady();
-    //   await fetchSleep();
-    //   updateLifestyleIfReady();
-    //   // calculateLifestyleScore();
-    //   // calculateXP();
-    //   await fetchToday();
-    //   await fetchHistory();
-    //   generateDailyGuides();
-    // });
     loadAllData();
   }
 
   Future<void> loadAllData() async {
 
-    /// PROFILE
     await fetchUserProfile();
 
-    generateHeroInsight();
-
-    /// KALORI
     await fetchConsumedCalories();
 
-    /// TRACKING
     await fetchActivity();
     await fetchDietary();
     await fetchStress();
     await fetchSleep();
 
-    /// HITUNG LIFESTYLE
-    calculateLifestyleScore();
-    generateBodyInsight();
-
-    /// TODAY & HISTORY
     await fetchToday();
     await fetchHistory();
 
-    /// GUIDE
+    // calculateLifestyleScore();
+
+    generateBodyInsight();
+    generateHeroInsight();
     generateDailyGuides();
 
-    /// UPDATE UI
+    print("Sedentary  : ${sedentary.value}");
+
     update();
   }
-
   /// ================= PROFILE =================
   Future<void> fetchUserProfile() async {
     final profile = await api.getUserProfile(userId);
@@ -377,88 +281,104 @@ class HomeController extends GetxController {
     }
   }
 
-  /// ================= AKTIVITAS (FIX UTAMA) =================
-  // Future<void> fetchActivity() async {
-  //   try {
-  //     final response = await api.getActivity(userId);
-
-  //     print("RESPONSE ACTIVITY: $response");
-
-  //     if (response['success'] == true && response['data'] != null) {
-  //       final data = response['data'];
-
-  //       // ✅ AMBIL SESUAI NAMA BACKEND
-  //       aktivitasKategori.value = data['kategori'] ?? '';
-  //       aktivitasSkor.value = data['skor_total'] ?? 0;
-
-  //       menitPerHari.value = data['menit_per_hari'] ?? 0;
-  //       hariPerMinggu.value = data['hari_per_minggu'] ?? 0;
-  //       frekuensi.value = data['frekuensi_olahraga'] ?? 0;
-  //       jenis.value = data['jenis_aktivitas'] ?? 0;
-  //       detail.value = data['detail_aktivitas'] ?? 0;
-  //       sedentary.value = data['sedentary_jam'] ?? 0;
-  //       konsistensi.value = data['konsistensi_hari'] ?? 0;
-
-  //       print("SET BERHASIL:");
-  //       print("Kategori: ${aktivitasKategori.value}");
-  //       print("Skor: ${aktivitasSkor.value}");
-  //       print("Menit: ${menitPerHari.value}");
-  //     } else {
-  //       aktivitasKategori.value = '';
-  //       aktivitasSkor.value = 0;
-  //     }
-  //   } catch (e) {
-  //     print("ERROR FETCH ACTIVITY: $e");
-  //   }
-  // }
   /// ================= AKTIVITAS =================
   Future<void> fetchActivity() async {
     try {
       final response = await api.getActivity(userId);
+
+      print("===== RESPONSE ACTIVITY =====");
+      print(response);
 
       if (response['success'] == true &&
           response['data'] != null) {
 
         final data = response['data'];
 
+        print("===== DATA ACTIVITY =====");
+        print(data);
+
+        /// ================= KATEGORI =================
         aktivitasKategori.value =
-            data['kategori'] ?? '';
+            data['kategori']?.toString() ?? '';
 
         generateAktivitasSubtitle();
 
-        int raw =
-            data['skor_total'] ?? 0;
-
-        /// RANGE 5–15
+        /// ================= SKOR =================
+        // int rawScore =
+        //     (data['skor_total'] ?? 0) as int;
+        int rawScore =
+            int.tryParse( (data['skor_total'] ?? 0).toString()) ?? 0;
+            
+        // aktivitasSkor.value =
+        //     (((rawScore / 15) * 10)
+        //             .clamp(0, 10))
+        //         .round();
         aktivitasSkor.value =
-            (((raw / 15) * 10)
-            .clamp(0, 10))
-            .round();
+            (((rawScore / 15) * 10)
+                .clamp(0, 10))
+                .toInt();
 
-        hariPerMinggu.value =
-            data['hari_per_minggu'] ?? 0;
+        /// ================= DETAIL =================
 
+        // Durasi aktivitas
         menitPerHari.value =
-            data['durasi_aktivitas'] ?? 0;
+            (data['durasi_aktivitas'] ??
+                    data['durasi'] ??
+                    0)
+                .toInt();
 
+        // Frekuensi olahraga per minggu
         frekuensi.value =
-            data['frekuensi_olahraga'] ?? 0;
+            (data['frekuensi_mingguan'] ??
+                    data['frekuensi'] ??
+                    data['hari_per_minggu'] ??
+                    0)
+                .toInt();
 
+        // Intensitas
         jenis.value =
-            data['intensitas_aktivitas'] ?? 0;
+            (data['intensitas_aktivitas'] ??
+                    data['intensitas'] ??
+                    0)
+                .toInt();
 
-        detail.value =
-            data['aktivitas_harian'] ?? 0;
-
+        // Sedentary
         sedentary.value =
-            data['sedentary'] ?? 0;
+            (data['sedentary'] ??
+                    data['sedentary_jam'] ??
+                    0)
+                .toInt();
+
+        // Konsistensi
+        konsistensi.value =
+            frekuensi.value;
+
+        print("===== HASIL SET =====");
+        print("Kategori   : ${aktivitasKategori.value}");
+        print("Skor       : ${aktivitasSkor.value}");
+        print("Durasi     : ${menitPerHari.value}");
+        print("Frekuensi  : ${frekuensi.value}");
+        print("Intensitas : ${jenis.value}");
+        print("Sedentary  : ${sedentary.value}");
+
+        update();
 
       } else {
-        aktivitasKategori.value = '';
+
+        aktivitasKategori.value = "";
         aktivitasSkor.value = 0;
+
+        menitPerHari.value = 0;
+        frekuensi.value = 0;
+        jenis.value = 0;
+        sedentary.value = 0;
+        konsistensi.value = 0;
+
+        update();
       }
+
     } catch (e) {
-      print("ERROR ACTIVITY: $e");
+      print("ERROR FETCH ACTIVITY : $e");
     }
   }
 
@@ -482,11 +402,13 @@ class HomeController extends GetxController {
  Future<void> fetchDietary() async {
   try {
     final response = await api.getDietary(userId);
+    print(response);
 
     if (response['success'] == true &&
         response['data'] != null) {
 
       final data = response['data'];
+      print(data);
 
       dietaryKategori.value =
           data['kategori'] ?? '';
@@ -498,7 +420,7 @@ class HomeController extends GetxController {
       // skor normalisasi SPK
       dietarySkor.value =
           ((dietaryRawScore.value / 21) * 10)
-          .round();
+          .toInt();
 
       frekuensiMakan.value =
           data['frekuensi_makan'] ?? 0;
@@ -544,16 +466,18 @@ class HomeController extends GetxController {
 
         generateStressSubtitle();
 
-        int raw =
-            data['skor_total'] ?? 0;
+        stressRawScore.value =
+            int.tryParse(
+              (data['skor_total'] ?? 0).toString(),
+            ) ?? 0;
 
         /// STRESS = COST
         /// makin kecil makin bagus
 
         stressSkor.value =
-            (10 - ((raw / 40) * 10))
-            .clamp(0, 10)
-            .round();
+          (10 - ((stressRawScore.value / 40) * 10))
+              .clamp(0, 10)
+              .round();
 
         if (stressSkor.value < 0) {
           stressSkor.value = 0;
@@ -571,47 +495,109 @@ class HomeController extends GetxController {
   /// ================= SLEEP =================
   Future<void> fetchSleep() async {
     try {
+      print("USER ID FETCH SLEEP : $userId");
+
       final response = await api.getSleep(userId);
+
+      print(response);
 
       if (response['success'] == true &&
           response['data'] != null) {
 
         final data = response['data'];
 
+        /// ==========================
+        /// DATA DETAIL
+        /// ==========================
+
         sleepKategori.value =
-            data['kategori'] ?? '';
+            data['kategori']?.toString() ?? "";
+
+        durasiTidur.value =
+            (data['durasi_tidur'] ?? 0).toInt();
+
+        gangguan.value =
+            (data['gangguan'] ?? 0).toInt();
+
+        kualitas.value =
+            (data['kualitas_tidur'] ?? 0).toInt();
+
+        lamaTerbangun.value =
+            (data['lama_terbangun'] ?? 0).toInt();
+
+        mengantukSiang.value =
+            (data['mengantuk_siang'] ?? 0).toInt();
+
+        latensiTidur.value =
+            (data['latensi_tidur'] ?? 0).toInt();
+
+        jadwalTidur.value =
+            (data['jadwal_tidur'] ?? 0).toInt();
+
+        /// ==========================
+        /// SKOR SAW
+        /// ==========================
+
+        // switch (sleepKategori.value) {
+
+        //   case "Sangat Baik":
+        //     sleepSkor.value = 10;
+        //     break;
+
+        //   case "Cukup":
+        //     sleepSkor.value = 6;
+        //     break;
+
+        //   case "Buruk":
+        //     sleepSkor.value = 2;
+        //     break;
+
+        //   default:
+        //     sleepSkor.value = 0;
+        // }
+        sleepRawScore.value =
+            int.tryParse(
+              (data['skor_total'] ?? 0).toString(),
+            ) ?? 0;
+
+        sleepSkor.value =
+          (10 - ((sleepRawScore.value / 21) * 10))
+              .clamp(0, 10)
+              .round();
+
+        print("========== HASIL HOME ==========");
+        print("Kategori : ${sleepKategori.value}");
+        print("Skor : ${sleepSkor.value}");
+        print("Durasi : ${durasiTidur.value}");
+        print("Gangguan : ${gangguan.value}");
+        print("Kualitas : ${kualitas.value}");
+        print("Terbangun : ${lamaTerbangun.value}");
+        print("Mengantuk : ${mengantukSiang.value}");
+        print("Latensi : ${latensiTidur.value}");
+        print("Jadwal : ${jadwalTidur.value}");
 
         generateSleepSubtitle();
 
-        int raw =
-            data['skor_total'] ?? 0;
-
-        /// RANGE 6–18
-        sleepSkor.value =
-            (((raw / 18) * 10)
-            .clamp(0, 10))
-            .round();
-        durasiTidur.value =
-            data['durasi_tidur'] ?? 0;
-
-        gangguan.value =
-            data['gangguan'] ?? 0;
-
-        lamaTerbangun.value =
-            data['lama_terbangun'] ?? 0;
-
-        kualitas.value =
-            data['kualitas_tidur'] ?? 0;
-
-        keteraturan.value =
-            data['keteraturan'] ?? 0;
+        update();
 
       } else {
-        sleepKategori.value = '';
+
+        sleepKategori.value = "";
         sleepSkor.value = 0;
+
+        durasiTidur.value = 0;
+        gangguan.value = 0;
+        kualitas.value = 0;
+        lamaTerbangun.value = 0;
+        mengantukSiang.value = 0;
+        latensiTidur.value = 0;
+        jadwalTidur.value = 0;
+
+        update();
       }
+
     } catch (e) {
-      print("ERROR FETCH SLEEP: $e");
+      print("ERROR FETCH SLEEP : $e");
     }
   }
 
@@ -620,31 +606,6 @@ class HomeController extends GetxController {
       calculateLifestyleScore();
     }
   }
-
-  //  /// ================= HITUNG FINAL =================
-  // void calculateLifestyleScore() {
-  //   if (!isLifestyleComplete) return;
-
-  //   int bmiScore = mapBmiScore(kategori.value);
-
-  //   int total = bmiScore +
-  //       aktivitasSkor.value +
-  //       dietarySkor.value +
-  //       sleepSkor.value +
-  //       stressSkor.value;
-
-  //   lifestyleScore.value = total;
-
-  //   if (total >= 40) {
-  //     lifestyleKategori.value = "Sangat Sehat";
-  //   } else if (total >= 30) {
-  //     lifestyleKategori.value = "Sehat";
-  //   } else if (total >= 20) {
-  //     lifestyleKategori.value = "Cukup";
-  //   } else {
-  //     lifestyleKategori.value = "Perlu Perbaikan";
-  //   }
-  // }
 
   /// =======================================================
 /// SPK LIFESTYLE SCORE
@@ -674,42 +635,42 @@ void calculateLifestyleScore() {
 
   /// ================= KATEGORI =================
 
-  if (total >= 8) {
-    lifestyleKategori.value = "Sangat Seimbang";
-  } else if (total >= 6) {
-    lifestyleKategori.value = "Seimbang";
-  } else if (total >= 4) {
-    lifestyleKategori.value = "Kurang Seimbang";
-  } else {
-    lifestyleKategori.value = "Tidak Seimbang";
-  }
+    if (total >= 7.0) {
+      lifestyleKategori.value = "Seimbang";
+    } else if (total >= 5.5) {
+      lifestyleKategori.value = "Cukup Seimbang";
+    } else {
+      lifestyleKategori.value = "Perlu Perbaikan";
+    }
 
   /// =====================================================
   /// KONTRIBUSI PARAMETER (SKOR × BOBOT)
   /// =====================================================
 
-  Map<String, double> kontribusi = {
+  Map<String, double> skor = {
 
     "Pola Makan":
-        makan * bobotMakan,
+        makan,
 
     "Aktivitas Fisik":
-        aktivitas * bobotAktivitas,
+        aktivitas,
 
     "Tidur":
-        tidur * bobotTidur,
+        tidur,
 
     "Manajemen Stress":
-        stress * bobotStress,
+        stress,
   };
 
-  /// CARI KONTRIBUSI TERENDAH
-
   String weakest =
-      kontribusi.entries
+      skor.entries
         .reduce((a, b) =>
             a.value < b.value ? a : b)
         .key;
+
+  weakestParameter.value = weakest;
+  
+  generateBodyInsight();
   /// =====================================================
   /// KESIMPULAN SPK
   /// =====================================================
@@ -722,85 +683,129 @@ void calculateLifestyleScore() {
           "Pola makan menjadi faktor yang paling perlu diperbaiki.";
 
       lifestyleRecommendation.value =
-          "Perbaiki jadwal makan, kurangi junk food, dan perbanyak sayur serta air putih.";
+          "Usahakan makan teratur, perbanyak konsumsi sayur dan buah, serta batasi makanan cepat saji.";
 
       break;
 
     case "Aktivitas Fisik":
 
       lifestyleInsight.value =
-          "Aktivitas fisik menjadi faktor utama yang masih kurang.";
+          "Aktivitas fisik masih menjadi aspek yang paling memerlukan perhatian.";
 
       lifestyleRecommendation.value =
-          "Coba tambah aktivitas ringan seperti jalan kaki atau stretching minimal 30 menit.";
+          "Tingkatkan aktivitas fisik ringan seperti berjalan kaki atau olahraga minimal 30 menit setiap hari.";
 
       break;
 
     case "Tidur":
 
       lifestyleInsight.value =
-          "Kualitas tidurmu masih belum optimal.";
+          "Kualitas tidur masih perlu diperbaiki untuk mendukung kesehatan secara keseluruhan.";
 
       lifestyleRecommendation.value =
-          "Tidur lebih teratur dan hindari begadang agar tubuh bisa recovery lebih baik.";
+          "Tidur 7-9 jam setiap malam, hindari begadang, dan batasi penggunaan gadget sebelum tidur.";
 
       break;
 
     case "Manajemen Stress":
 
       lifestyleInsight.value =
-          "Stress menjadi faktor yang paling mempengaruhi lifestyle kamu.";
+          "Manajemen stres merupakan aspek yang paling perlu ditingkatkan berdasarkan hasil evaluasi.";
 
       lifestyleRecommendation.value =
           "Luangkan waktu relaksasi, kurangi overthinking, dan istirahat sejenak.";
 
       break;
   }
+
+  print("===== SAW =====");
+  print("Aktivitas : $aktivitas");
+  print("Makan     : $makan");
+  print("Tidur     : $tidur");
+  print("Stress    : $stress");
+  print("Total     : $total");
+  print("Kategori  : ${lifestyleKategori.value}");
+  print("================");
 }
 
-void generateBodyInsight() {
-  final bmiKategori = kategori.value;
-  final lifestyle = lifestyleKategori.value;
+  void generateBodyInsight() {
 
-  if (bmiKategori == "Kurus") {
+    /// BMI NORMAL
+    if (kategori.value == "Normal") {
 
-    if (lifestyle == "Sangat Seimbang" ||
-        lifestyle == "Seimbang") {
+      if (lifestyleKategori.value == "Seimbang") {
 
-      bodyInsight.value =
-          "Status tubuhmu masih di bawah ideal, tetapi gaya hidupmu sudah cukup baik untuk membantu mencapai berat badan sehat.";
+        bodyInsight.value =
+            "Berat badan kamu berada pada kondisi ideal dan kebiasaan harianmu sudah mendukung kesehatan. Pertahankan pola makan, aktivitas, tidur, dan pengelolaan stres yang baik.";
 
-    } else {
+      } else if (lifestyleKategori.value == "Cukup Seimbang") {
 
-      bodyInsight.value =
-          "Status tubuhmu masih di bawah ideal dan beberapa kebiasaan harian perlu diperbaiki agar berat badan sehat lebih mudah dicapai.";
+        bodyInsight.value =
+            "Berat badan kamu masih dalam kondisi ideal. Namun, beberapa kebiasaan harian masih bisa ditingkatkan agar kesehatan tubuh tetap optimal.";
+
+      } else {
+
+        bodyInsight.value =
+            "Berat badan kamu masih ideal, tetapi ada kebiasaan harian yang perlu diperbaiki. Mulai dari perubahan kecil seperti lebih aktif bergerak, makan lebih seimbang, atau memperbaiki waktu istirahat.";
+      }
     }
 
-  } else if (bmiKategori == "Normal") {
 
-    if (lifestyle == "Sangat Seimbang" ||
-        lifestyle == "Seimbang") {
+    /// BMI KURUS
+    else if (kategori.value == "Kurus") {
 
-      bodyInsight.value =
-          "Status tubuhmu berada pada rentang ideal dan didukung oleh gaya hidup yang baik.";
+      if (lifestyleKategori.value == "Seimbang") {
 
-    } else {
+        bodyInsight.value =
+            "Berat badan kamu masih di bawah ideal, tetapi kebiasaan hidup sudah cukup baik. Fokuskan pada asupan makanan bergizi untuk membantu mencapai berat badan yang lebih sehat.";
 
-      bodyInsight.value =
-          "Status tubuhmu masih ideal, tetapi beberapa kebiasaan perlu diperbaiki agar tetap terjaga.";
+      } else {
+
+        bodyInsight.value =
+            "Berat badan kamu masih di bawah ideal dan beberapa kebiasaan harian perlu diperbaiki. Perhatikan asupan makanan, pola tidur, dan aktivitas agar tubuh lebih sehat.";
+      }
     }
 
-  } else if (bmiKategori == "Gemuk") {
 
-    bodyInsight.value =
-        "Status tubuhmu berada di atas rentang ideal. Perbaikan gaya hidup dapat membantu menjaga berat badan.";
+    /// BMI GEMUK
+    else if (kategori.value == "Gemuk") {
 
-  } else if (bmiKategori == "Obesitas") {
+      if (lifestyleKategori.value == "Seimbang") {
 
-    bodyInsight.value =
-        "Status tubuhmu menunjukkan risiko kesehatan yang lebih tinggi sehingga perubahan gaya hidup sangat dianjurkan.";
+        bodyInsight.value =
+            "Berat badan kamu berada di atas ideal, tetapi kebiasaan hidup sudah cukup baik. Pertahankan pola makan dan aktivitas agar berat badan tetap terkontrol.";
+
+      } else {
+
+        bodyInsight.value =
+            "Berat badan kamu berada di atas ideal dan ada kebiasaan yang perlu diperbaiki. Tingkatkan aktivitas fisik dan mulai pilih makanan yang lebih seimbang.";
+      }
+    }
+
+
+    /// BMI OBESITAS
+    else if (kategori.value == "Obesitas") {
+
+      if (lifestyleKategori.value == "Seimbang") {
+
+        bodyInsight.value =
+            "Kebiasaan harian kamu sudah cukup baik, namun berat badan masih perlu diperhatikan. Tetap pantau pola makan dan aktivitas fisik secara rutin.";
+
+      } else {
+
+        bodyInsight.value =
+            "Kondisi berat badan kamu membutuhkan perhatian lebih. Mulai perbaiki kebiasaan harian secara bertahap, terutama aktivitas fisik, pola makan, dan kualitas tidur.";
+      }
+    }
+
+
+    /// DEFAULT
+    else {
+
+      bodyInsight.value =
+          "Lengkapi data kesehatanmu untuk mendapatkan insight kondisi tubuh.";
+    }
   }
-}
 
   int mapBmiScore(String kategori) {
     switch (kategori) {
@@ -850,39 +855,51 @@ void generateBodyInsight() {
   }
   
   void generateDietarySubtitle() {
-    /// PRIORITAS: dari API
     if (dietaryRekomendasi.isNotEmpty) {
       dietarySubtitle.value = dietaryRekomendasi.first;
       return;
     }
 
-    /// fallback
     switch (dietaryKategori.value) {
       case "Buruk":
-        dietarySubtitle.value = "Coba makan lebih sehat hari ini 🥗";
+        dietarySubtitle.value =
+            "Coba makan lebih sehat hari ini 🥗";
         break;
+
       case "Cukup":
-        dietarySubtitle.value = "Sudah cukup baik";
+        dietarySubtitle.value =
+            "Sudah cukup baik 👍";
         break;
+
       case "Baik":
-        dietarySubtitle.value = "Pertahankan pola makan";
+      case "Sangat Baik":
+        dietarySubtitle.value =
+            "Pertahankan pola makan sehat 🔥";
         break;
+
       default:
-        dietarySubtitle.value = "";
+        dietarySubtitle.value =
+            "Kondisimu bagus hari ini 🌟";
     }
   }
 
   void generateSleepSubtitle() {
     switch (sleepKategori.value) {
       case "Buruk":
-        sleepSubtitle.value = "Yuk atur tidur lebih teratur 😴";
+        sleepSubtitle.value =
+            "Yuk atur tidur lebih teratur 😴";
         break;
+
       case "Cukup":
-        sleepSubtitle.value = "Perlu tingkatkan kualitas tidur";
+        sleepSubtitle.value =
+            "Perlu tingkatkan kualitas tidur";
         break;
-      case "Baik":
-        sleepSubtitle.value = "Tidur sudah optimal";
+
+      case "Sangat Baik":
+        sleepSubtitle.value =
+            "Pertahankan pola tidur sehat 🌙";
         break;
+
       default:
         sleepSubtitle.value = "";
     }
@@ -921,7 +938,10 @@ void generateBodyInsight() {
     if (aktivitasKategori.value.isEmpty) return 0;
 
     int totalMenit =
-        menitPerHari.value * hariPerMinggu.value;
+        menitPerHari.value *
+        (konsistensi.value == 0
+            ? 1
+            : konsistensi.value);
 
     if (totalMenit >= 150) return 10;
     if (totalMenit >= 90) return 7;
@@ -975,16 +995,16 @@ void generateBodyInsight() {
   double get lifestyleTargetScore {
 
     double aktivitas =
-        targetAktivitas * 0.20;
+    targetAktivitas * bobotAktivitas;
 
     double tidur =
-        targetTidur * 0.30;
+        targetTidur * bobotTidur;
 
     double makan =
-        targetAir * 0.15;
+        targetAir * bobotMakan;
 
     double stress =
-        targetStres * 0.35;
+        targetStres * bobotStress;
 
     double total =
         aktivitas +
@@ -1002,14 +1022,46 @@ void generateBodyInsight() {
         stressKategori.value.isNotEmpty;
   }
 
-  Future<void> fetchToday() async {
-    final data = await api.getToday(userId);
+// Future<void> fetchToday() async {
 
-    todayAktivitas.value = data['aktivitas'] ?? 0;
-    todayDiet.value = data['diet'] ?? 0;
-    todayTidur.value = data['tidur'] ?? 0;
-    todayStres.value = data['stres'] ?? 0;
+//   final data = await api.getToday(userId);
+
+
+//   todayAktivitas.value =
+//       (data['aktivitas'] ?? 0).toInt();
+
+//   todayDiet.value =
+//       (data['diet'] ?? 0).toInt();
+
+//   todayTidur.value =
+//       (data['tidur'] ?? 0).toInt();
+
+//   todayStres.value =
+//       (data['stres'] ?? 0).toInt();
+
+// }
+
+Future<void> fetchToday() async {
+
+  final data = await api.getTodayReport(userId);
+
+
+  if(data['success']==true){
+
+    lifestyleScore.value =
+        (data['score'] ?? 0).toDouble();
+
+
+    lifestyleKategori.value =
+        data['status'] ?? "";
+
+
+    lifestyleInsight.value =
+        data['conclusion'] ?? "";
+
   }
+
+}
 
   Future<void> fetchHistory() async {
     try {
@@ -1022,6 +1074,7 @@ void generateBodyInsight() {
       print("ERROR HISTORY: $e");
     }
   }
+  
 
 /// ================== DAILY GUIDE ==================
 final dailyGuides = <String>[].obs;
@@ -1079,20 +1132,4 @@ void generateDailyGuides() {
       "🔥 Pertahankan kebiasaan sehatmu");
 }
 
-// double get lifestyleTargetScore {
-//   final aktivitas = targetAktivitas; // 0–10
-//   final tidur = targetTidur;         // 0–10
-//   final air = targetAir;             // 0–10
-//   final stress = targetStres;        // 0–10
-
-//   return ((aktivitas + tidur + air + stress) / 40) * 100;
-// }
-
-// double get guideProgress {
-//   if (dailyGuides.isEmpty) return 0;
-
-//   int done = dailyGuides.where((e) => e.isDone.value).length;
-//   return (done / dailyGuides.length) * 100;
-// }
-  
 }

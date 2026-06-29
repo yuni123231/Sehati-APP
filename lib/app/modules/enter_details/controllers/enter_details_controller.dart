@@ -4,63 +4,67 @@ import '../../../data/providers/api_services.dart';
 
 class EnterDetailsController extends GetxController {
 
+  final ApiServices api = ApiServices();
+  final box = GetStorage();
+
   late int userId;
 
-  /// =====================================================
-  /// TEXTFIELD
-  /// =====================================================
+  // ==========================
+  // FORM DATA
+  // ==========================
 
   final name = ''.obs;
   final age = ''.obs;
   final height = ''.obs;
   final weight = ''.obs;
 
-  /// DOMISILI
+  final gender = ''.obs;
   final alamat = ''.obs;
 
-  /// =====================================================
-  /// DROPDOWN
-  /// =====================================================
-
-  final gender = 'Male'.obs;
-  final activity = 'Moderate'.obs;
-  final goal = 'Gain Weight'.obs;
-
-  /// =====================================================
-  /// SERVICE
-  /// =====================================================
-
-  final ApiServices api = ApiServices();
-  final box = GetStorage();
-
-  /// =====================================================
-  /// INIT
-  /// =====================================================
+  final isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    userId = box.read('userId') ?? 0;
 
-    if (userId == 0) {
+    userId =
+        Get.arguments ??
+        box.read('userId') ??
+        0;
+
+
+    if(userId != 0){
+
+      box.write(
+        'userId',
+        userId,
+      );
+
+      print(
+        "USER ID ENTER DETAILS = $userId"
+      );
+
+    }else{
+
       Get.snackbar(
         "Error",
         "User tidak ditemukan",
       );
 
+
       Future.delayed(
-        const Duration(seconds: 1),
-        () {
+        const Duration(seconds:1),
+        (){
           Get.offAllNamed('/signin');
         },
       );
     }
   }
 
-  /// =====================================================
-  /// SAVE PROFILE
-  /// =====================================================
+  // ==========================
+  // SAVE PROFILE
+  // ==========================
 
   Future<Map<String, dynamic>?> saveUserProfile() async {
 
@@ -68,14 +72,12 @@ class EnterDetailsController extends GetxController {
     final tinggi = double.tryParse(height.value);
     final berat = double.tryParse(weight.value);
 
-    /// VALIDASI
-    if (
-        name.value.isEmpty ||
+    if (name.value.isEmpty ||
         umur == null ||
         tinggi == null ||
         berat == null ||
-        alamat.value.isEmpty
-    ) {
+        gender.value.isEmpty ||
+        alamat.value.isEmpty) {
 
       Get.snackbar(
         "Error",
@@ -85,83 +87,94 @@ class EnterDetailsController extends GetxController {
       return null;
     }
 
+    isLoading.value = true;
+
     try {
 
-      final result = await api.saveUserProfile(
-
+      final result =
+          await api.saveUserProfile(
         userId: userId,
-
         umur: umur,
-
         tinggiBadan: tinggi,
-
         beratBadan: berat,
 
         jenisKelamin: gender.value,
 
-        aktivitas: activity.value,
+        // default sementara
+        aktivitas: "Moderate",
+        tujuan: "Healthy",
 
-        tujuan: goal.value,
-
-        /// TAMBAHAN
         alamat: alamat.value,
       );
 
-      if (result != null) {
+      isLoading.value = false;
+
+      if (result != null &&
+          result["success"] == true) {
 
         Get.snackbar(
-          "Berhasil",
-          "Profil berhasil disimpan ✨",
+          "Data Tersimpan",
+          "Profil berhasil disimpan. Silakan verifikasi email untuk login.",
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 4),
         );
+
+        Future.delayed(
+          const Duration(seconds: 2),
+          (){
+            Get.offAllNamed('/signin');
+          },
+        );
+
+        return result;
       }
-
-      return result;
-
-    } catch (e) {
 
       Get.snackbar(
         "Error",
-        "Gagal menyimpan profil",
+        result?["message"] ??
+            "Gagal menyimpan profil",
+      );
+
+      return null;
+
+    } catch (e) {
+
+      isLoading.value = false;
+
+      Get.snackbar(
+        "Error",
+        "Terjadi kesalahan server",
       );
 
       return null;
     }
   }
 
-  /// =====================================================
-  /// SETTER
-  /// =====================================================
+  // ==========================
+  // SETTER
+  // ==========================
 
-  void setName(String v) {
-    name.value = v;
+  void setName(String value) {
+    name.value = value;
   }
 
-  void setAge(String v) {
-    age.value = v;
+  void setAge(String value) {
+    age.value = value;
   }
 
-  void setHeight(String v) {
-    height.value = v;
+  void setHeight(String value) {
+    height.value = value;
   }
 
-  void setWeight(String v) {
-    weight.value = v;
+  void setWeight(String value) {
+    weight.value = value;
   }
 
-  void setGender(String v) {
-    gender.value = v;
+  void setGender(String value) {
+    gender.value = value;
   }
 
-  void setActivity(String v) {
-    activity.value = v;
-  }
-
-  void setGoal(String v) {
-    goal.value = v;
-  }
-
-  /// TAMBAHAN
-  void setAddress(String v) {
-    alamat.value = v;
+  void setAddress(String value) {
+    alamat.value = value;
   }
 }

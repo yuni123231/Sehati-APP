@@ -16,434 +16,327 @@ class HealthDataView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
 
-      /// ================= APPBAR =================
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        foregroundColor: darkText,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          "Data Kesehatan",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: darkText,
-          ),
-        ),
-      ),
-
-      /// ================= BODY =================
       body: Obx(() {
-
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: primary,
+            ),
           );
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// HEADER
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                          color: darkText,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Data Kesehatan",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: darkText,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            "Kelola data kesehatanmu",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
 
-              /// ================= HERO CARD =================
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF4ADE80),
-                      Color(0xFF60A5FA),
+                const SizedBox(height: 20),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        primary,
+                        secondary,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primary.withOpacity(0.15),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: secondary.withValues(alpha: 0.18),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.person_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Informasi Pribadi",
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              "Lengkapi data kesehatanmu",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(18),
+                const SizedBox(height: 20),
+                
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
-                      child: const Icon(
-                        Icons.favorite_rounded,
-                        color: Colors.white,
-                        size: 30,
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      
+                      _label("Usia"),
+
+                      TextField(
+                        controller: controller.ageController,
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration(
+                          hint: "Masukkan usia",
+                          icon: Icons.cake_rounded,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 18),
+                      const SizedBox(height: 16),
 
-                    const Text(
-                      "Lengkapi\nProfil Kesehatanmu ✨",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                        height: 1.3,
+                      _label("Jenis Kelamin"),
+
+                      Obx(
+                        () => _dropdown(
+                          value: ['Laki-laki', 'Perempuan']
+                                  .contains(controller.gender.value)
+                              ? controller.gender.value
+                              : null,
+                          items: const [
+                            'Laki-laki',
+                            'Perempuan',
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.gender.value = val;
+                            }
+                          },
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 16),
 
-                    Text(
-                      "Data ini membantu aplikasi memberikan rekomendasi kesehatan yang lebih akurat dan personal 🌱",
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.92),
-                        fontSize: 13,
-                        height: 1.5,
+                      _label("Tinggi Badan"),
+
+                      TextField(
+                        controller: controller.heightController,
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration(
+                          hint: "Contoh: 170 cm",
+                          icon: Icons.height_rounded,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
 
-              const SizedBox(height: 26),
+                      const SizedBox(height: 16),
 
-              /// ================= INFORMASI PRIBADI =================
-              _sectionTitle(
-                "Informasi Pribadi",
-                "Lengkapi data dasar kesehatan kamu",
-              ),
+                      _label("Berat Badan"),
 
-              const SizedBox(height: 16),
-
-              _card(
-                child: Column(
-                  children: [
-
-                    _label("Usia"),
-
-                    TextField(
-                      controller: controller.ageController,
-                      keyboardType: TextInputType.number,
-                      decoration: _inputDecoration(
-                        hint: "Masukkan usia kamu",
-                        icon: Icons.cake_rounded,
+                      TextField(
+                        controller: controller.weightController,
+                        keyboardType: TextInputType.number,
+                        decoration: _inputDecoration(
+                          hint: "Contoh: 60 kg",
+                          icon: Icons.monitor_weight_rounded,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 18),
+                      const SizedBox(height: 16),
 
-                    _label("Jenis Kelamin"),
+                      _label("Alamat"),
 
-                    _dropdown(
-                      value: controller.gender.value,
-                      items: const [
-                        'Laki-laki',
-                        'Perempuan',
-                      ],
-                      onChanged: (val) {
-                        controller.gender.value = val!;
-                      },
-                    ),
+                      TextField(
+                        controller: controller.addressController,
+                        maxLines: 2,
+                        decoration: _inputDecoration(
+                          hint: "Contoh: Slawi, Tegal",
+                          icon: Icons.location_on_rounded,
+                        ),
+                      ),
 
-                    const SizedBox(height: 18),
+                      const SizedBox(height: 24),
 
-                    Row(
-                      children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
 
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: primary.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.favorite_rounded,
+                                color: primary,
+                                size: 20,
+                              ),
+                            ),
 
-                              _label("Tinggi Badan"),
+                            const SizedBox(width: 12),
 
-                              TextField(
-                                controller:
-                                    controller.heightController,
-                                keyboardType:
-                                    TextInputType.number,
-                                decoration: _inputDecoration(
-                                  hint: "cm",
-                                  icon: Icons.height_rounded,
+                            Expanded(
+                              child: Text(
+                                "Data kesehatan membantu aplikasi memberikan rekomendasi yang lebih akurat.",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                  height: 1.5,
                                 ),
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 58,
+                        child: ElevatedButton.icon(
+                          onPressed: controller.saveHealthData,
+                          icon: const Icon(
+                            Icons.save_rounded,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            "Simpan",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
                           ),
                         ),
-
-                        const SizedBox(width: 14),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-
-                              _label("Berat Badan"),
-
-                              TextField(
-                                controller:
-                                    controller.weightController,
-                                keyboardType:
-                                    TextInputType.number,
-                                decoration: _inputDecoration(
-                                  hint: "kg",
-                                  icon: Icons.monitor_weight_rounded,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    _label("Alamat"),
-
-                    TextField(
-                      controller: controller.addressController,
-                      maxLines: 2,
-                      decoration: _inputDecoration(
-                        hint: "Contoh: Slawi, Tegal",
-                        icon: Icons.location_on_rounded,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 24),
-
-              /// ================= GAYA HIDUP =================
-              _sectionTitle(
-                "Gaya Hidup",
-                "Bantu kami memahami aktivitas harianmu",
-              ),
-
-              const SizedBox(height: 16),
-
-              _card(
-                child: Column(
-                  children: [
-
-                    _label("Tingkat Aktivitas"),
-
-                    _dropdown(
-                      value: controller.activity.value,
-                      items: const [
-                        'Rendah',
-                        'Sedang',
-                        'Aktif',
-                        'Sangat Aktif',
-                      ],
-                      onChanged: (val) {
-                        controller.activity.value = val!;
-                      },
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    _label("Tujuan Kesehatan"),
-
-                    _dropdown(
-                      value: controller.goal.value,
-                      items: const [
-                        'Menurunkan Berat Badan',
-                        'Menjaga Berat Badan',
-                        'Menaikkan Berat Badan',
-                      ],
-                      onChanged: (val) {
-                        controller.goal.value = val!;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              /// ================= INFO CARD =================
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        Icons.tips_and_updates_rounded,
-                        color: primary,
-                        size: 22,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: Text(
-                        "Semakin lengkap data kesehatanmu, semakin akurat rekomendasi pola makan, aktivitas, dan kesehatan yang diberikan aplikasi 💚",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }),
-
-      /// ================= BUTTON =================
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 18,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-
-        child: SizedBox(
-          height: 58,
-          child: Obx(
-            () => ElevatedButton(
-              onPressed: controller.isLoading.value
-                  ? null
-                  : controller.saveHealthData,
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-
-              child: controller.isLoading.value
-
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.2,
-                      ),
-                    )
-
-                  : const Text(
-                      "Simpan Data",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  /// =========================================================
-  /// SECTION TITLE
-  /// =========================================================
-
-  Widget _sectionTitle(
-    String title,
-    String subtitle,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: darkText,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade600,
-            height: 1.4,
-          ),
+  /// CARD
+ Widget _card({
+  required Widget child,
+}) {
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
         ),
       ],
-    );
-  }
+    ),
+    child: child,
+  );
+}
 
-  /// =========================================================
-  /// CARD
-  /// =========================================================
-
-  Widget _card({
-    required Widget child,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-
-  /// =========================================================
   /// LABEL
-  /// =========================================================
-
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -461,48 +354,38 @@ class HealthDataView extends StatelessWidget {
     );
   }
 
-  /// =========================================================
-  /// INPUT
-  /// =========================================================
-
+  /// INPUT DECORATION
   InputDecoration _inputDecoration({
     required String hint,
     required IconData icon,
   }) {
     return InputDecoration(
       hintText: hint,
-
       hintStyle: TextStyle(
         color: Colors.grey.shade500,
         fontSize: 13,
       ),
-
       prefixIcon: Icon(
         icon,
         color: primary,
         size: 20,
       ),
-
       filled: true,
-      fillColor: const Color(0xFFF4F7FA),
-
+      fillColor: const Color(0xFFF8FAFC),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 18,
         vertical: 18,
       ),
-
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
       ),
-
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
       ),
-
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(
           color: primary,
           width: 1.5,
@@ -511,12 +394,9 @@ class HealthDataView extends StatelessWidget {
     );
   }
 
-  /// =========================================================
   /// DROPDOWN
-  /// =========================================================
-
   Widget _dropdown({
-    required String value,
+    required String? value,
     required List<String> items,
     required Function(String?) onChanged,
   }) {
@@ -526,23 +406,17 @@ class HealthDataView extends StatelessWidget {
         color: const Color(0xFFF4F7FA),
         borderRadius: BorderRadius.circular(18),
       ),
-
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: items.contains(value) ? value : null,
+          value: value,
           isExpanded: true,
           borderRadius: BorderRadius.circular(16),
-
-          hint: const Text(
-            "Pilih opsi",
-          ),
-
+          hint: const Text("Pilih opsi"),
           icon: const Icon(
             Icons.keyboard_arrow_down_rounded,
           ),
-
           items: items.map((e) {
-            return DropdownMenuItem(
+            return DropdownMenuItem<String>(
               value: e,
               child: Text(
                 e,
@@ -552,7 +426,6 @@ class HealthDataView extends StatelessWidget {
               ),
             );
           }).toList(),
-
           onChanged: onChanged,
         ),
       ),

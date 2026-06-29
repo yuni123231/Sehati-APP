@@ -107,7 +107,7 @@ class AddActivityView extends GetView<AddActivityController> {
                             SizedBox(height: 4),
 
                             Text(
-                              "Isi aktivitas fisik kamu selama 1 minggu terakhir",
+                              "Isi aktivitas fisik yang kamu lakukan hari ini",
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.white,
@@ -167,7 +167,7 @@ class AddActivityView extends GetView<AddActivityController> {
 
                   const Expanded(
                     child: Text(
-                      "Pilih jawaban yang paling sesuai dengan aktivitas fisik kamu dalam 1 minggu terakhir.",
+                      "Pilih jawaban yang paling sesuai dengan aktivitas fisik yang kamu lakukan hari ini.",
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.6,
@@ -199,9 +199,9 @@ class AddActivityView extends GetView<AddActivityController> {
             _questionCard(
               icon: Icons.timer_outlined,
               question:
-                  "Berapa lama kamu aktif bergerak dalam 1 hari?",
+                  "Berapa lama total kamu berolahraga atau aktif bergerak hari ini?",
               selected: controller.durasiAktivitas,
-              options: [
+              options: const [
                 {
                   "label": "≥ 60 menit",
                   "value": 3,
@@ -218,74 +218,25 @@ class AddActivityView extends GetView<AddActivityController> {
             ),
 
             /// ======================================================
-            /// FREKUENSI
-            /// ======================================================
-
-            _questionCard(
-              icon: Icons.calendar_month_rounded,
-              question:
-                  "Berapa hari kamu melakukan aktivitas fisik dalam seminggu?",
-              selected: controller.frekuensiOlahraga,
-              options: [
-                {
-                  "label": "≥ 5 hari/minggu",
-                  "value": 3,
-                },
-                {
-                  "label": "3 - 4 hari/minggu",
-                  "value": 2,
-                },
-                {
-                  "label": "≤ 2 hari/minggu",
-                  "value": 1,
-                },
-              ],
-            ),
-
-            /// ======================================================
             /// INTENSITAS
             /// ======================================================
 
             _questionCard(
               icon: Icons.local_fire_department_rounded,
-              question: "Seberapa berat aktivitas kamu?",
-              selected: controller.intensitasAktivitas,
-              options: [
-                {
-                  "label": "Berat (lari, gym)",
-                  "value": 3,
-                },
-                {
-                  "label": "Sedang (jalan cepat)",
-                  "value": 2,
-                },
-                {
-                  "label": "Ringan",
-                  "value": 1,
-                },
-              ],
-            ),
-
-            /// ======================================================
-            /// AKTIVITAS HARIAN
-            /// ======================================================
-
-            _questionCard(
-              icon: Icons.directions_walk_rounded,
               question:
-                  "Seberapa aktif kamu dalam kegiatan sekolah/rumah?",
-              selected: controller.aktivitasHarian,
-              options: [
+                  "Apa jenis aktivitas terberat yang kamu lakukan hari ini?",
+              selected: controller.intensitasAktivitas,
+              options: const [
                 {
-                  "label": "Aktif",
+                  "label": "Berat (lari, futsal, gym, basket)",
                   "value": 3,
                 },
                 {
-                  "label": "Cukup aktif",
+                  "label": "Sedang (jalan cepat, sepedaan santai)",
                   "value": 2,
                 },
                 {
-                  "label": "Kurang aktif",
+                  "label": "Ringan (cuma jalan santai / banyak diam)",
                   "value": 1,
                 },
               ],
@@ -298,22 +249,49 @@ class AddActivityView extends GetView<AddActivityController> {
             _questionCard(
               icon: Icons.chair_alt_rounded,
               question:
-                  "Berapa lama kamu duduk dalam sehari?",
+                  "Di luar jam tidur, berapa lama kamu duduk, rebahan, atau bermain HP hari ini?",
               selected: controller.sedentary,
-              options: [
+              options: const [
                 {
-                  "label": "< 2 jam",
+                  "label": "< 4 jam",
                   "value": 3,
                 },
                 {
-                  "label": "2 - 5 jam",
+                  "label": "4 - 8 jam",
                   "value": 2,
                 },
                 {
-                  "label": "> 5 jam",
+                  "label": "> 8 jam",
                   "value": 1,
                 },
               ],
+            ),
+
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.auto_graph,
+                    color: Colors.orange,
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Frekuensi aktivitas fisik mingguan dihitung otomatis berdasarkan riwayat pengisian aktivitas.",
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 30),

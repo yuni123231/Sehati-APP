@@ -6,10 +6,11 @@ import 'package:http/http.dart' as http;
 
 class ApiServices {
   // Ganti dengan IP lokal atau URL backend kamu
-  // final String baseUrl = 'http://192.168.18.8:5000';  //WFI LAPTOP
-  final String baseUrl = 'http://192.168.43.24:5000'; // WFI HP
+  final String baseUrl = 'http://192.168.18.8:5000';  //WFI LAPTOP
+  // final String baseUrl = 'http://192.168.43.24:5000'; // WFI HP
   // final String baseUrl = 'http://192.168.141.230:5000'; // WFI PERPUS
-  //  final String baseUrl = 'http://192.168.18.81:5000'; // WFI BELI KOPI
+  //  final String baseUrl = 'http://192.168.110.2:5000'; // WFI CAFE
+   
   // ================== SIGNUP ==================
   Future<Map<String, dynamic>> signup({
     required String name,
@@ -36,7 +37,7 @@ class ApiServices {
         return {
           'success': true,
           'user_id': data['user_id'],
-          'message': data['message'] ?? 'Registrasi berhasil',
+          'message': data['message'] ?? 'Silahkan cek email',
         };
       } else {
         return {
@@ -86,6 +87,88 @@ class ApiServices {
         'message': 'Server error',
       };
     }
+  }
+
+  Future<Map<String,dynamic>> googleLogin(
+    String idToken
+    
+    ) async {
+      
+    try{
+      final response = await http.post(
+      Uri.parse(
+      '$baseUrl/api/google-login'
+    ),
+      headers:{
+      'Content-Type':
+      'application/json'
+    },
+    body:jsonEncode({
+      'id_token':idToken
+      })
+    );
+    final data =
+      jsonDecode(response.body);
+      return data;
+      }catch(e){
+      return {
+        "success":false,
+        "message":
+        "Server error"
+      };
+    }
+  }
+
+  // ================== SIGN IN WITH GOOGLE ===================
+  Future<Map<String, dynamic>> signinGoogle(String email) async {
+
+    final response = await http.post(
+      Uri.parse(
+        '$baseUrl/api/signin-google'
+      ),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: jsonEncode({
+        "email": email
+      }),
+    );
+    return jsonDecode(response.body);
+  }
+
+  // ================== FORGOT PASSWORD ==================
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/api/forgot-password"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "email": email,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> resetPassword(
+    String email,
+    String otp,
+    String password,
+  ) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/api/reset-password"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "email": email,
+        "otp": otp,
+        "password": password,
+      }),
+    );
+
+    return jsonDecode(response.body);
   }
 
   // ================== SAVE USER PROFILE ==================
@@ -157,7 +240,12 @@ class ApiServices {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // return data['profile'];
-        return Map<String, dynamic>.from(data['profile']);
+        if(data['profile'] != null){
+
+          return Map<String,dynamic>.from(
+            data['profile']
+          );
+        }
       }
       return null;
     } catch (e) {
@@ -462,93 +550,83 @@ class ApiServices {
 
   // =================== SAVE POLA HIDUP SEHAT ==================
   
-  // ======== AKTIVITAS ===========
-Future<Map<String, dynamic>> saveActivity({
-  required int userId,
+   // ======== AKTIVITAS ===========
+    Future<Map<String, dynamic>> saveActivity({
+      required int userId,
 
-  required int durasiAktivitas,
-  required int frekuensiOlahraga,
-  required int intensitasAktivitas,
-  required int aktivitasHarian,
-  required int sedentary,
+      required int durasiAktivitas,
+      required int intensitasAktivitas,
+      required int sedentary,
 
-  required int skorTotal,
-  required String kategori,
-}) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/save-activity'),
+      required int skorTotal,
+      required String kategori,
+    }) async {
+      try {
+        final response = await http.post(
+          Uri.parse('$baseUrl/api/save-activity'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            "user_id": userId,
+            "durasi_aktivitas": durasiAktivitas,
+            "intensitas_aktivitas": intensitasAktivitas,
+            "sedentary": sedentary,
+            "skor_total": skorTotal,
+            "kategori": kategori,
+          }),
+        );
 
-      headers: {
-        'Content-Type': 'application/json',
-      },
+        final data = jsonDecode(response.body);
 
-      body: jsonEncode({
-        "user_id": userId,
+        if (response.statusCode == 200 ||
+            response.statusCode == 201) {
+          return {
+            'success': true,
+            ...data,
+          };
+        } else {
+          return {
+            'success': false,
+            'message': data['message'],
+          };
+        }
+      } catch (e) {
+        print("ERROR SAVE ACTIVITY: $e");
 
-        "durasi_aktivitas": durasiAktivitas,
-        "frekuensi_olahraga": frekuensiOlahraga,
-        "intensitas_aktivitas": intensitasAktivitas,
-        "aktivitas_harian": aktivitasHarian,
-        "sedentary": sedentary,
-
-        "skor_total": skorTotal,
-        "kategori": kategori,
-      }),
-    );
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200 ||
-        response.statusCode == 201) {
-      return {
-        'success': true,
-        ...data,
-      };
-    } else {
-      return {
-        'success': false,
-        'message': data['message'],
-      };
+        return {
+          'success': false,
+          'message': 'Gagal koneksi',
+        };
+      }
     }
-  } catch (e) {
-    print("ERROR SAVE ACTIVITY: $e");
 
-    return {
-      'success': false,
-      'message': 'Gagal koneksi',
-    };
-  }
-}
+    Future<Map<String, dynamic>> getActivity(
+      int userId,
+    ) async {
+      try {
+        final response = await http.get(
+          Uri.parse('$baseUrl/api/get-activity/$userId'),
+        );
 
-Future<Map<String, dynamic>> getActivity(
-  int userId,
-) async {
-  try {
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/get-activity/$userId'),
-    );
+        final data = jsonDecode(response.body);
 
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200 &&
-        data['success']) {
-      return data;
-    } else {
-      return {
-        'success': false,
-        'message': data['message'],
-      };
+        if (response.statusCode == 200 &&
+            data['success']) {
+          return data;
+        } else {
+          return {
+            'success': false,
+            'message': data['message'],
+          };
+        }
+      } catch (e) {
+        return {
+          'success': false,
+          'message': 'Gagal koneksi',
+        };
+      }
     }
-  } catch (e) {
-    print("ERROR GET ACTIVITY: $e");
-
-    return {
-      'success': false,
-      'message': 'Gagal koneksi',
-    };
-  }
-}
 
   // ======== 2. POLA MAKAN ==========
   Future<Map<String, dynamic>> saveDietary({
@@ -622,9 +700,11 @@ Future<Map<String, dynamic>> getActivity(
     required int userId,
     required int durasi,
     required int gangguan,
-    required int terbangun,
     required int kualitas,
-    required int keteraturan,
+    required int terbangun,
+    required int mengantuk,
+    required int latensi,
+    required int jadwal,
     required int skorTotal,
     required String kategori,
   }) async {
@@ -635,12 +715,14 @@ Future<Map<String, dynamic>> getActivity(
         body: jsonEncode({
           "user_id": userId,
           "durasi_tidur": durasi,
-          "gangguan_tidur": gangguan,
-          "lama_terbangun": terbangun,
+          "gangguan": gangguan,
           "kualitas_tidur": kualitas,
-          "keteraturan_tidur": keteraturan,
+          "lama_terbangun": terbangun,
+          "mengantuk_siang": mengantuk,
+          "latensi_tidur": latensi,
+          "jadwal_tidur": jadwal,
           "skor_total": skorTotal,
-          "kategori": kategori,
+          "kategori": kategori
         }),
       );
 
@@ -821,7 +903,7 @@ Future<Map<String, dynamic>> getStress(
     }
   }
 
-  Future<Map<String, dynamic>> getToday(
+  Future<Map<String,dynamic>> getToday(
     int userId,
   ) async {
     try {
@@ -829,11 +911,19 @@ Future<Map<String, dynamic>> getStress(
         Uri.parse('$baseUrl/api/today/$userId'),
       );
 
-      final data = jsonDecode(response.body);
+      final json = jsonDecode(response.body);
 
       if (response.statusCode == 200 &&
-          data['success'] == true) {
-        return data;
+          json['success'] == true) {
+        // return data;
+        final data = json['data'] ?? {};
+        return {
+          "success":true,
+          "aktivitas": data['aktivitas'] ?? 0,
+          "diet": data['diet'] ?? 0,
+          "tidur": data['tidur'] ?? 0,
+          "stres": data['stres'] ?? 0,
+        };
       }
 
       return {
@@ -853,6 +943,60 @@ Future<Map<String, dynamic>> getStress(
         'tidur': 0,
         'stres': 0,
       };
+    }
+  }
+
+  // ================= TODAY REPORT =================
+
+  Future<Map<String, dynamic>> getTodayReport(
+    int userId,
+  ) async {
+
+    try {
+
+      final response = await http.get(
+        Uri.parse(
+          '$baseUrl/api/today-report/$userId',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+
+      final data = jsonDecode(response.body);
+
+
+      if (response.statusCode == 200 &&
+          data['success'] == true) {
+
+        return data;
+
+      }
+
+
+      return {
+        "success": false,
+        "score": 0,
+        "status": "Belum Ada Data",
+        "conclusion": "",
+      };
+
+
+    } catch(e){
+
+      print(
+        "ERROR TODAY REPORT : $e"
+      );
+
+
+      return {
+        "success": false,
+        "score":0,
+        "status":"Belum Ada Data",
+        "conclusion":"",
+      };
+
     }
   }
 

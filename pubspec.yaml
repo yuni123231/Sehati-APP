@@ -39,12 +39,13 @@ dependencies:
   http: ^1.4.0
   image_picker: ^1.2.1
   camera: ^0.10.5+5
-  google_sign_in: ^6.3.0
+  google_sign_in: ^7.2.0
   get_storage: ^2.1.1
   fl_chart: ^0.68.0
   url_launcher: ^6.3.0
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
+  pin_code_fields: ^9.4.0
 
 dev_dependencies:
   flutter_test:
